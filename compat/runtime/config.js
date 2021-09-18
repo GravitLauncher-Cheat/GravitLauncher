@@ -1,21 +1,21 @@
 // ====== LAUNCHER CONFIG ====== //
 var config = {
-    dir: "GravitLauncher", // Launcher directory
+    dir: "Dreamfinity", // Launcher directory
     title: "GravitLauncher", // Window title
     icons: [ "favicon.png" ], // Window icon paths
 
     // Auth config
-    linkText: "GravitLauncher", // Text for link under "Auth" button
-    linkURL: new java.net.URL("https://gravitlauncher.ml"), // URL for link under "Auth" button
+    linkText: "dima_dencep", // Text for link under "Auth" button
+    linkURL: new java.net.URL("http://dima-dencep.ml"), // URL for link under "Auth" button
 	
     // Menu config
-    discord_url: new java.net.URL("https://discord.gg/bf7ZtwC"),
+    discord_url: new java.net.URL("http://discord.com"),
 
     // Settings defaults
     settingsMagic: 0xC0DE5, // Ancient magic, don't touch
     autoEnterDefault: false, // Should autoEnter be enabled by default?
     fullScreenDefault: false, // Should fullScreen be enabled by default?
-    ramDefault: 1024, // Default RAM amount (0 for auto)
+    ramDefault: 4096, // Default RAM amount (0 for auto)
 };
 
 // ====== DON'T TOUCH! ====== //
