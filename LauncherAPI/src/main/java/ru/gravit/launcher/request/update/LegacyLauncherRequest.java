@@ -1,124 +1,115 @@
 package ru.gravit.launcher.request.update;
 
+import java.security.interfaces.RSAPublicKey;
 import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.profiles.ClientProfile;
-import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.RequestType;
-import ru.gravit.launcher.request.update.LegacyLauncherRequest.Result;
-import ru.gravit.launcher.serialize.HInput;
+import java.util.Collections;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.launcher.serialize.HInput;
+import ru.gravit.launcher.request.RequestType;
+import java.io.IOException;
+import java.security.SignatureException;
+import java.util.List;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.security.SignatureException;
-import java.security.interfaces.RSAPublicKey;
+import ru.gravit.utils.helper.IOHelper;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.LauncherAPI;
+import java.nio.file.Path;
+import ru.gravit.launcher.request.Request;
 
-public final class LegacyLauncherRequest extends Request<Result> {
-    public static final class Result {
-        @LauncherAPI
-        public final List<ClientProfile> profiles;
-        private final byte[] binary;
-        private final byte[] sign;
-
-        public Result(byte[] binary, byte[] sign, List<ClientProfile> profiles) {
-            this.binary = binary == null ? null : binary.clone();
-            this.sign = sign.clone();
-            this.profiles = Collections.unmodifiableList(profiles);
-        }
-
-        @LauncherAPI
-        public byte[] getBinary() {
-            return binary == null ? null : binary.clone();
-        }
-
-        @LauncherAPI
-        public byte[] getSign() {
-            return sign.clone();
-        }
-    }
-
+public final class LegacyLauncherRequest extends Request
+{
     @LauncherAPI
-    public static final Path BINARY_PATH = IOHelper.getCodeSource(Launcher.class);
-
+    public static final Path BINARY_PATH;
     @LauncherAPI
-    public static final boolean EXE_BINARY = IOHelper.hasExtension(BINARY_PATH, "exe");
-
+    public static final boolean EXE_BINARY;
+    
     @LauncherAPI
-    public static void update(LauncherConfig config, Result result) throws SignatureException, IOException {
+    public static void update(final LauncherConfig config, final Result result) throws SignatureException, IOException {
         SecurityHelper.verifySign(result.binary, result.sign, config.publicKey);
-
-        // Prepare process builder to start new instance (java -jar works for Launch4J's EXE too)
-        List<String> args = new ArrayList<>(8);
+        final List<String> args = new ArrayList<String>(8);
         args.add(IOHelper.resolveJavaBin(null).toString());
-        if (LogHelper.isDebugEnabled())
-            args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
+        if (LogHelper.isDebugEnabled()) {
+            args.add(JVMHelper.jvmProperty("launcher.debug", Boolean.toString(LogHelper.isDebugEnabled())));
+        }
         args.add("-jar");
-        args.add(BINARY_PATH.toString());
-        ProcessBuilder builder = new ProcessBuilder(args.toArray(new String[0]));
+        args.add(LegacyLauncherRequest.BINARY_PATH.toString());
+        final ProcessBuilder builder = new ProcessBuilder((String[])args.toArray(new String[0]));
         builder.inheritIO();
-
-        // Rewrite and start new instance
-        IOHelper.write(BINARY_PATH, result.binary);
+        IOHelper.write(LegacyLauncherRequest.BINARY_PATH, result.binary);
         builder.start();
-
-        // Kill current instance
         JVMHelper.RUNTIME.exit(255);
-        throw new AssertionError("Why Launcher wasn't restarted?!");
+        throw new AssertionError((Object)"Why Launcher wasn't restarted?!");
     }
-
+    
     @LauncherAPI
     public LegacyLauncherRequest() {
         this(null);
     }
-
+    
     @LauncherAPI
-    public LegacyLauncherRequest(LauncherConfig config) {
+    public LegacyLauncherRequest(final LauncherConfig config) {
         super(config);
     }
-
+    
     @Override
     public Integer getLegacyType() {
         return RequestType.LEGACYLAUNCHER.getNumber();
     }
-
+    
     @Override
-    protected Result requestDo(HInput input, HOutput output) throws Exception {
-        output.writeBoolean(EXE_BINARY);
+    protected Result requestDo(final HInput input, final HOutput output) throws Exception {
+        output.writeBoolean(LegacyLauncherRequest.EXE_BINARY);
         output.flush();
-        readError(input);
-
-        // Verify launcher sign
-        RSAPublicKey publicKey = config.publicKey;
-        byte[] sign = input.readByteArray(-SecurityHelper.RSA_KEY_LENGTH);
-        boolean shouldUpdate = !SecurityHelper.isValidSign(BINARY_PATH, sign, publicKey);
-
-        // Update launcher if need
+        this.readError(input);
+        final RSAPublicKey publicKey = this.config.publicKey;
+        final byte[] sign = input.readByteArray(-256);
+        final boolean shouldUpdate = !SecurityHelper.isValidSign(LegacyLauncherRequest.BINARY_PATH, sign, publicKey);
         output.writeBoolean(shouldUpdate);
         output.flush();
         if (shouldUpdate) {
-            byte[] binary = input.readByteArray(0);
-            SecurityHelper.verifySign(binary, sign, config.publicKey);
+            final byte[] binary = input.readByteArray(0);
+            SecurityHelper.verifySign(binary, sign, this.config.publicKey);
             return new Result(binary, sign, Collections.emptyList());
         }
-
-        // Read clients profiles list
-        int count = input.readLength(0);
-        List<ClientProfile> profiles = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            String prof = input.readString(0);
+        final int count = input.readLength(0);
+        final List<ClientProfile> profiles = new ArrayList<ClientProfile>(count);
+        for (int i = 0; i < count; ++i) {
+            final String prof = input.readString(0);
             profiles.add(Launcher.gson.fromJson(prof, ClientProfile.class));
         }
-
-        // Return request result
         return new Result(null, sign, profiles);
+    }
+    
+    static {
+        BINARY_PATH = IOHelper.getCodeSource(Launcher.class);
+        EXE_BINARY = IOHelper.hasExtension(LegacyLauncherRequest.BINARY_PATH, "exe");
+    }
+    
+    public static final class Result
+    {
+        @LauncherAPI
+        public final List<ClientProfile> profiles;
+        private final byte[] binary;
+        private final byte[] sign;
+        
+        public Result(final byte[] binary, final byte[] sign, final List<ClientProfile> profiles) {
+            this.binary = (byte[])((binary == null) ? null : ((byte[])binary.clone()));
+            this.sign = sign.clone();
+            this.profiles = Collections.unmodifiableList((List<? extends ClientProfile>)profiles);
+        }
+        
+        @LauncherAPI
+        public byte[] getBinary() {
+            return (byte[])((this.binary == null) ? null : ((byte[])this.binary.clone()));
+        }
+        
+        @LauncherAPI
+        public byte[] getSign() {
+            return this.sign.clone();
+        }
     }
 }

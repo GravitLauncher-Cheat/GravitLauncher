@@ -1,50 +1,55 @@
+// 
+// Decompiled by Procyon v0.5.36
+// 
+
 package ru.gravit.launcher.request.auth;
 
-import ru.gravit.launcher.*;
-import ru.gravit.launcher.events.request.AuthRequestEvent;
+import java.io.IOException;
+import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.launcher.profiles.PlayerProfile;
-import ru.gravit.launcher.request.Request;
+import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.serialize.HOutput;
+import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
-import ru.gravit.launcher.request.websockets.RequestInterface;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.SerializeLimits;
-import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.HWID;
+import ru.gravit.launcher.request.websockets.RequestInterface;
+import ru.gravit.launcher.events.request.AuthRequestEvent;
+import ru.gravit.launcher.request.Request;
 
-import java.io.IOException;
-
-public final class AuthRequest extends Request<AuthRequestEvent> implements RequestInterface {
-
+public final class AuthRequest extends Request<AuthRequestEvent> implements RequestInterface
+{
     private final String login;
-
     private final byte[] encryptedPassword;
     private final String auth_id;
     private final HWID hwid;
     private final String customText;
-
+    
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid) {
+    public AuthRequest(final LauncherConfig config, final String login, final byte[] password, final HWID hwid) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = password.clone();
         this.hwid = hwid;
-        customText = "";
-        auth_id = "";
+        this.customText = "";
+        this.auth_id = "";
     }
-
+    
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid, String auth_id) {
+    public AuthRequest(final LauncherConfig config, final String login, final byte[] password, final HWID hwid, final String auth_id) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = password.clone();
         this.hwid = hwid;
         this.auth_id = auth_id;
-        customText = "";
+        this.customText = "";
     }
+    
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid, String customText, String auth_id) {
+    public AuthRequest(final LauncherConfig config, final String login, final byte[] password, final HWID hwid, final String customText, final String auth_id) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = password.clone();
@@ -52,67 +57,46 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
         this.auth_id = auth_id;
         this.customText = customText;
     }
-
+    
     @LauncherAPI
-    public AuthRequest(String login, byte[] password, HWID hwid) {
+    public AuthRequest(final String login, final byte[] password, final HWID hwid) {
         this(null, login, password, hwid);
     }
-    @Override
-    public AuthRequestEvent requestWebSockets() throws Exception
-    {
-        return (AuthRequestEvent) LegacyRequestBridge.sendRequest(this);
+    
+    public AuthRequestEvent requestWebSockets() throws Exception {
+        return (AuthRequestEvent)LegacyRequestBridge.sendRequest(this);
     }
+    
     @LauncherAPI
-    public AuthRequest(String login, byte[] password, HWID hwid, String auth_id) {
+    public AuthRequest(final String login, final byte[] password, final HWID hwid, final String auth_id) {
         this(null, login, password, hwid, auth_id);
     }
-
+    
     @Override
     public Integer getLegacyType() {
         return RequestType.AUTH.getNumber();
     }
-    /*public class EchoRequest implements RequestInterface
-    {
-        String echo;
-
-        public EchoRequest(String echo) {
-            this.echo = echo;
-        }
-
-        @Override
-        public String getLegacyType() {
-            return "echo";
-        }
-    }*/
+    
     @Override
-    protected AuthRequestEvent requestDo(HInput input, HOutput output) throws IOException {
-        /*try {
-            LegacyRequestBridge.sendRequest(new EchoRequest("Hello World!"));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
-        output.writeString(login, SerializeLimits.MAX_LOGIN);
+    protected AuthRequestEvent requestDo(final HInput input, final HOutput output) throws IOException {
+        output.writeString(this.login, 1024);
         output.writeBoolean(Launcher.profile != null);
-        if (Launcher.profile != null)
-            output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
-        output.writeString(auth_id, SerializeLimits.MAX_QUEUE_SIZE);
-        output.writeString(hwid.getSerializeString(), 0);
-        //output.writeLong(0);
-        //output.writeLong(0);
-        //output.writeLong(0);
-        output.writeByteArray(encryptedPassword, SecurityHelper.CRYPTO_MAX_LENGTH);
-        output.writeString(customText, SerializeLimits.MAX_CUSTOM_TEXT);
+        if (Launcher.profile != null) {
+            output.writeString(Launcher.profile.getTitle(), 128);
+        }
+        output.writeString(this.auth_id, 128);
+        output.writeString(this.hwid.getSerializeString(), 0);
+        output.writeByteArray(this.encryptedPassword, 2048);
+        output.writeString(this.customText, 512);
         output.flush();
-
-        // Read UUID and access token
-        readError(input);
-        PlayerProfile pp = new PlayerProfile(input);
-        String accessToken = input.readASCII(-SecurityHelper.TOKEN_STRING_LENGTH);
-        ClientPermissions permissions = new ClientPermissions(input);
-        String protectToken = input.readString(SerializeLimits.MAX_CUSTOM_TEXT);
+        this.readError(input);
+        final PlayerProfile pp = new PlayerProfile(input);
+        final String accessToken = input.readASCII(-32);
+        final ClientPermissions permissions = new ClientPermissions(input);
+        final String protectToken = input.readString(512);
         return new AuthRequestEvent(permissions, pp, accessToken, protectToken);
     }
-
+    
     @Override
     public String getType() {
         return "auth";
