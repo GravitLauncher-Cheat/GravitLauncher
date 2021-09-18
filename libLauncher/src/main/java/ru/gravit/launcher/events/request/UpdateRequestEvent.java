@@ -4,15 +4,17 @@ import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.request.ResultInterface;
 
-public class UpdateRequestEvent implements ResultInterface {
+public class UpdateRequestEvent implements ResultInterface
+{
     @LauncherNetworkAPI
     public HashedDir hdir;
+    
     @Override
     public String getType() {
         return "update";
     }
-
-    public UpdateRequestEvent(HashedDir hdir) {
+    
+    public UpdateRequestEvent(final HashedDir hdir) {
         this.hdir = hdir;
     }
 }

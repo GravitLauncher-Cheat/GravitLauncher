@@ -1,15 +1,15 @@
 package ru.gravit.launcher.profiles.optional;
 
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.utils.helper.LogHelper;
-
+import ru.gravit.launcher.serialize.HInput;
 import java.io.IOException;
+import ru.gravit.launcher.serialize.HOutput;
 import java.util.Objects;
 import java.util.Set;
+import ru.gravit.launcher.LauncherAPI;
 
-public class OptionalFile {
+public class OptionalFile
+{
     @LauncherAPI
     public String[] list;
     @LauncherAPI
@@ -17,7 +17,7 @@ public class OptionalFile {
     @LauncherAPI
     public boolean mark;
     @LauncherAPI
-    public boolean visible = true;
+    public boolean visible;
     @LauncherAPI
     public String name;
     @LauncherAPI
@@ -31,89 +31,112 @@ public class OptionalFile {
     @LauncherAPI
     public transient OptionalFile[] conflict;
     @LauncherAPI
-    public int subTreeLevel = 1;
+    public int subTreeLevel;
     @LauncherAPI
-    public long permissions = 0L;
+    public long permissions;
     @LauncherAPI
     public transient Set<OptionalFile> dependenciesCount;
-
+    
+    public OptionalFile() {
+        this.visible = true;
+        this.subTreeLevel = 1;
+        this.permissions = 0L;
+    }
+    
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        OptionalFile that = (OptionalFile) o;
-        return Objects.equals(name, that.name);
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || this.getClass() != o.getClass()) {
+            return false;
+        }
+        final OptionalFile that = (OptionalFile)o;
+        return Objects.equals(this.name, that.name);
     }
-
+    
+    @Override
     public int hashCode() {
-        return Objects.hash(name);
+        return Objects.hash(this.name);
     }
+    
     @LauncherAPI
     public OptionalType getType() {
         return OptionalType.FILE;
     }
+    
     @LauncherAPI
     public String getName() {
-        return name;
+        return this.name;
     }
+    
     @LauncherAPI
     public boolean isVisible() {
-        return visible;
+        return this.visible;
     }
+    
     @LauncherAPI
     public boolean isMark() {
-        return mark;
+        return this.mark;
     }
+    
     @LauncherAPI
     public long getPermissions() {
-        return permissions;
+        return this.permissions;
     }
+    
     @LauncherAPI
-    public void writeType(HOutput output) throws IOException
-    {
-        switch(type)
-        {
-
-            case FILE:
+    public void writeType(final HOutput output) throws IOException {
+        switch (this.type) {
+            case FILE: {
                 output.writeInt(1);
                 break;
-            case CLASSPATH:
+            }
+            case CLASSPATH: {
                 output.writeInt(2);
                 break;
-            case JVMARGS:
+            }
+            case JVMARGS: {
                 output.writeInt(3);
                 break;
-            case CLIENTARGS:
+            }
+            case CLIENTARGS: {
                 output.writeInt(4);
                 break;
-            default:
+            }
+            default: {
                 output.writeInt(5);
                 break;
+            }
         }
     }
+    
     @LauncherAPI
-    public static OptionalType readType(HInput input) throws IOException
-    {
-        int t = input.readInt();
-        OptionalType type;
-        switch(t)
-        {
-            case 1:
+    public static OptionalType readType(final HInput input) throws IOException {
+        final int t = input.readInt();
+        OptionalType type = null;
+        switch (t) {
+            case 1: {
                 type = OptionalType.FILE;
                 break;
-            case 2:
+            }
+            case 2: {
                 type = OptionalType.CLASSPATH;
                 break;
-            case 3:
+            }
+            case 3: {
                 type = OptionalType.JVMARGS;
                 break;
-            case 4:
+            }
+            case 4: {
                 type = OptionalType.CLIENTARGS;
                 break;
-            default:
-                LogHelper.error("readType failed. Read int %d",t);
+            }
+            default: {
+                LogHelper.error("readType failed. Read int %d", t);
                 type = OptionalType.FILE;
                 break;
+            }
         }
         return type;
     }

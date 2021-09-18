@@ -2,14 +2,16 @@ package ru.gravit.launcher.events.request;
 
 import ru.gravit.launcher.request.ResultInterface;
 
-public class ExecCommandRequestEvent implements ResultInterface {
+public class ExecCommandRequestEvent implements ResultInterface
+{
+    boolean success;
+    
     @Override
     public String getType() {
         return "execCmd";
     }
-    boolean success;
-
-    public ExecCommandRequestEvent(boolean success) {
+    
+    public ExecCommandRequestEvent(final boolean success) {
         this.success = success;
     }
 }

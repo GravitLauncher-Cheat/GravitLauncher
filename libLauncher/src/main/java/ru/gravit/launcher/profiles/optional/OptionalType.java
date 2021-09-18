@@ -6,11 +6,11 @@ import ru.gravit.launcher.LauncherAPI;
 public enum OptionalType
 {
     @LauncherAPI
-    FILE,
+    FILE, 
     @LauncherAPI
-    CLASSPATH,
+    CLASSPATH, 
     @LauncherAPI
-    JVMARGS,
+    JVMARGS, 
     @LauncherAPI
-    CLIENTARGS
+    CLIENTARGS;
 }

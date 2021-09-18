@@ -1,78 +1,80 @@
 package ru.gravit.launcher.hasher;
 
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
-import ru.gravit.utils.helper.VerifyHelper;
-
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Arrays;
+import java.nio.file.Path;
+import ru.gravit.utils.helper.VerifyHelper;
+import java.io.IOException;
+import ru.gravit.launcher.serialize.HInput;
+import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.utils.helper.SecurityHelper;
 
-public final class HashedFile extends HashedEntry {
-    public static final DigestAlgorithm DIGEST_ALGO = DigestAlgorithm.MD5;
-
-    // Instance
+public final class HashedFile extends HashedEntry
+{
+    public static final SecurityHelper.DigestAlgorithm DIGEST_ALGO;
     @LauncherAPI
     public final long size;
     private final byte[] digest;
-
+    
     @LauncherAPI
-    public HashedFile(HInput input) throws IOException {
-        this(input.readVarLong(), input.readBoolean() ? input.readByteArray(-DIGEST_ALGO.bytes) : null);
+    public HashedFile(final HInput input) throws IOException {
+        this(input.readVarLong(), (byte[])(input.readBoolean() ? input.readByteArray(-HashedFile.DIGEST_ALGO.bytes) : null));
     }
-
+    
     @LauncherAPI
-    public HashedFile(long size, byte[] digest) {
+    public HashedFile(final long size, final byte[] digest) {
         this.size = VerifyHelper.verifyLong(size, VerifyHelper.L_NOT_NEGATIVE, "Illegal size: " + size);
-        this.digest = digest == null ? null : DIGEST_ALGO.verify(digest).clone();
+        this.digest = (byte[])((digest == null) ? null : ((byte[])HashedFile.DIGEST_ALGO.verify(digest).clone()));
     }
-
+    
     @LauncherAPI
-    public HashedFile(Path file, long size, boolean digest) throws IOException {
-        this(size, digest ? SecurityHelper.digest(DIGEST_ALGO, file) : null);
+    public HashedFile(final Path file, final long size, final boolean digest) throws IOException {
+        this(size, (byte[])(digest ? SecurityHelper.digest(HashedFile.DIGEST_ALGO, file) : null));
     }
-
+    
     @Override
     public Type getType() {
         return Type.FILE;
     }
-
+    
     @LauncherAPI
-    public boolean isSame(HashedFile o) {
-        return size == o.size && (digest == null || o.digest == null || Arrays.equals(digest, o.digest));
+    public boolean isSame(final HashedFile o) {
+        return this.size == o.size && (this.digest == null || o.digest == null || Arrays.equals(this.digest, o.digest));
     }
-
+    
     @LauncherAPI
-    public boolean isSame(Path file, boolean digest) throws IOException {
-        if (size != IOHelper.readAttributes(file).size())
+    public boolean isSame(final Path file, final boolean digest) throws IOException {
+        if (this.size != IOHelper.readAttributes(file).size()) {
             return false;
-        if (!digest || this.digest == null)
+        }
+        if (!digest || this.digest == null) {
             return true;
-
-        // Create digest
-        byte[] actualDigest = SecurityHelper.digest(DIGEST_ALGO, file);
+        }
+        final byte[] actualDigest = SecurityHelper.digest(HashedFile.DIGEST_ALGO, file);
         return Arrays.equals(this.digest, actualDigest);
     }
-
+    
     @LauncherAPI
-    public boolean isSameDigest(byte[] digest) {
+    public boolean isSameDigest(final byte[] digest) {
         return this.digest == null || digest == null || Arrays.equals(this.digest, digest);
     }
-
+    
     @Override
     public long size() {
-        return size;
+        return this.size;
     }
-
+    
     @Override
-    public void write(HOutput output) throws IOException {
-        output.writeVarLong(size);
-        output.writeBoolean(digest != null);
-        if (digest != null)
-            output.writeByteArray(digest, -DIGEST_ALGO.bytes);
+    public void write(final HOutput output) throws IOException {
+        output.writeVarLong(this.size);
+        output.writeBoolean(this.digest != null);
+        if (this.digest != null) {
+            output.writeByteArray(this.digest, -HashedFile.DIGEST_ALGO.bytes);
+        }
+    }
+    
+    static {
+        DIGEST_ALGO = SecurityHelper.DigestAlgorithm.MD5;
     }
 }
