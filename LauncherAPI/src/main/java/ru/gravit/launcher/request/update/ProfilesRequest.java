@@ -39,19 +39,16 @@ public final class ProfilesRequest extends Request<ProfilesRequestEvent> impleme
     }
 
     @Override
-    protected ProfilesRequestEvent requestDo(HInput input, HOutput output) throws Exception {
+    protected ProfilesRequestEvent requestDo(final HInput input, final HOutput output) throws Exception {
         output.writeBoolean(true);
         output.flush();
-        readError(input);
-
-        int count = input.readLength(0);
-        //  input.readLength(0)
-        List<ClientProfile> profiles = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            String prof = input.readString(0);
+        this.readError(input);
+        final int count = input.readLength(0);
+        final List<ClientProfile> profiles = new ArrayList<ClientProfile>(count);
+        for (int i = 0; i < count; ++i) {
+            final String prof = input.readString(0);
             profiles.add(Launcher.gson.fromJson(prof, ClientProfile.class));
         }
-        // Return request result
         return new ProfilesRequestEvent(profiles);
     }
 
