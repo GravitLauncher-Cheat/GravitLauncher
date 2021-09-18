@@ -1,6 +1,7 @@
 package ru.gravit.launcher;
 
 @FunctionalInterface
-public interface NeedGarbageCollection {
+public interface NeedGarbageCollection
+{
     void garbageCollection();
 }
