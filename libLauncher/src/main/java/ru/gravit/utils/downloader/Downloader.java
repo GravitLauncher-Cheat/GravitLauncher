@@ -1,212 +1,264 @@
 package ru.gravit.utils.downloader;
 
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-
-import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.Collections;
+import java.util.Iterator;
+import javax.net.ssl.HttpsURLConnection;
+import ru.gravit.utils.helper.LogHelper;
+import java.io.FileOutputStream;
+import java.io.BufferedInputStream;
+import ru.gravit.utils.helper.IOHelper;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
+import java.net.HttpURLConnection;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import java.net.URL;
+import java.io.File;
+import java.util.Map;
 
-public class Downloader implements Runnable {
-    @FunctionalInterface
-    public interface Handler {
-        void check(Certificate[] certs) throws IOException;
-    }
-
-    public static final Map<String, String> requestClient = Collections.singletonMap("User-Agent",
-            "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+public class Downloader implements Runnable
+{
+    public static final Map<String, String> requestClient;
     public static final int INTERVAL = 300;
-
     private final File file;
     private final URL url;
     private final String method;
     public final Map<String, String> requestProps;
-    public AtomicInteger writed = new AtomicInteger(0);
-    public final AtomicBoolean interrupt = new AtomicBoolean(false);
-    public final AtomicBoolean interrupted = new AtomicBoolean(false);
-    public AtomicReference<Throwable> ex = new AtomicReference<>(null);
+    public AtomicInteger writed;
+    public final AtomicBoolean interrupt;
+    public final AtomicBoolean interrupted;
+    public AtomicReference<Throwable> ex;
     private final int skip;
     private final Handler handler;
-
-    private HttpURLConnection connect = null;
-
-    public Downloader(URL url, File file) {
-        this.requestProps = new HashMap<>(requestClient);
+    private HttpURLConnection connect;
+    
+    public Downloader(final URL url, final File file) {
+        this.writed = new AtomicInteger(0);
+        this.interrupt = new AtomicBoolean(false);
+        this.interrupted = new AtomicBoolean(false);
+        this.ex = new AtomicReference<Throwable>(null);
+        this.connect = null;
+        this.requestProps = new HashMap<String, String>(Downloader.requestClient);
         this.file = file;
         this.url = url;
         this.skip = 0;
         this.handler = null;
         this.method = null;
     }
-
-    public Downloader(URL url, File file, int skip) {
-        this.requestProps = new HashMap<>(requestClient);
+    
+    public Downloader(final URL url, final File file, final int skip) {
+        this.writed = new AtomicInteger(0);
+        this.interrupt = new AtomicBoolean(false);
+        this.interrupted = new AtomicBoolean(false);
+        this.ex = new AtomicReference<Throwable>(null);
+        this.connect = null;
+        this.requestProps = new HashMap<String, String>(Downloader.requestClient);
         this.file = file;
         this.url = url;
         this.skip = skip;
         this.handler = null;
         this.method = null;
     }
-
-    public Downloader(URL url, File file, Handler handler) {
-        this.requestProps = new HashMap<>(requestClient);
+    
+    public Downloader(final URL url, final File file, final Handler handler) {
+        this.writed = new AtomicInteger(0);
+        this.interrupt = new AtomicBoolean(false);
+        this.interrupted = new AtomicBoolean(false);
+        this.ex = new AtomicReference<Throwable>(null);
+        this.connect = null;
+        this.requestProps = new HashMap<String, String>(Downloader.requestClient);
         this.file = file;
         this.url = url;
         this.skip = 0;
         this.handler = handler;
         this.method = null;
     }
-
-    public Downloader(URL url, File file, int skip, Handler handler) {
-        this.requestProps = new HashMap<>(requestClient);
+    
+    public Downloader(final URL url, final File file, final int skip, final Handler handler) {
+        this.writed = new AtomicInteger(0);
+        this.interrupt = new AtomicBoolean(false);
+        this.interrupted = new AtomicBoolean(false);
+        this.ex = new AtomicReference<Throwable>(null);
+        this.connect = null;
+        this.requestProps = new HashMap<String, String>(Downloader.requestClient);
         this.file = file;
         this.url = url;
         this.skip = skip;
         this.handler = handler;
         this.method = null;
     }
-
-    public Downloader(URL url, File file, int skip, Handler handler, Map<String, String> requestProps) {
-        this.requestProps = new HashMap<>(requestProps);
+    
+    public Downloader(final URL url, final File file, final int skip, final Handler handler, final Map<String, String> requestProps) {
+        this.writed = new AtomicInteger(0);
+        this.interrupt = new AtomicBoolean(false);
+        this.interrupted = new AtomicBoolean(false);
+        this.ex = new AtomicReference<Throwable>(null);
+        this.connect = null;
+        this.requestProps = new HashMap<String, String>(requestProps);
         this.file = file;
         this.url = url;
         this.skip = skip;
         this.handler = handler;
         this.method = null;
     }
-
-    public Downloader(URL url, File file, int skip, Handler handler, Map<String, String> requestProps, String method) {
-        this.requestProps = new HashMap<>(requestProps);
+    
+    public Downloader(final URL url, final File file, final int skip, final Handler handler, final Map<String, String> requestProps, final String method) {
+        this.writed = new AtomicInteger(0);
+        this.interrupt = new AtomicBoolean(false);
+        this.interrupted = new AtomicBoolean(false);
+        this.ex = new AtomicReference<Throwable>(null);
+        this.connect = null;
+        this.requestProps = new HashMap<String, String>(requestProps);
         this.file = file;
         this.url = url;
         this.skip = skip;
         this.handler = handler;
         this.method = method;
     }
-
-    public Downloader(URL url, File file, int skip, Handler handler, String method) {
-        this.requestProps = new HashMap<>(requestClient);
+    
+    public Downloader(final URL url, final File file, final int skip, final Handler handler, final String method) {
+        this.writed = new AtomicInteger(0);
+        this.interrupt = new AtomicBoolean(false);
+        this.interrupted = new AtomicBoolean(false);
+        this.ex = new AtomicReference<Throwable>(null);
+        this.connect = null;
+        this.requestProps = new HashMap<String, String>(Downloader.requestClient);
         this.file = file;
         this.url = url;
         this.skip = skip;
         this.handler = handler;
         this.method = method;
     }
-
+    
     public Map<String, String> getProps() {
-        return requestProps;
+        return this.requestProps;
     }
-
-    public void addProp(String key, String value) {
-        requestProps.put(key, value);
+    
+    public void addProp(final String key, final String value) {
+        this.requestProps.put(key, value);
     }
-
+    
     public File getFile() {
-        return file;
+        return this.file;
     }
-
+    
     public String getMethod() {
-        return method;
+        return this.method;
     }
-
+    
     public Handler getHandler() {
-        return handler;
+        return this.handler;
     }
-
+    
     public void downloadFile() throws IOException {
-        if (!(url.getProtocol().equalsIgnoreCase("http") || url.getProtocol().equalsIgnoreCase("https")))
+        if (!this.url.getProtocol().equalsIgnoreCase("http") && !this.url.getProtocol().equalsIgnoreCase("https")) {
             throw new IOException("Invalid protocol.");
-        interrupted.set(false);
-        if (url.getProtocol().equalsIgnoreCase("http")) {
-            HttpURLConnection connect = (HttpURLConnection) (url).openConnection();
+        }
+        this.interrupted.set(false);
+        if (this.url.getProtocol().equalsIgnoreCase("http")) {
+            final HttpURLConnection connect = (HttpURLConnection)this.url.openConnection();
             this.connect = connect;
-            if (method != null) connect.setRequestMethod(method);
-            for (Map.Entry<String, String> ent : requestProps.entrySet()) {
+            if (this.method != null) {
+                connect.setRequestMethod(this.method);
+            }
+            for (final Map.Entry<String, String> ent : this.requestProps.entrySet()) {
                 connect.setRequestProperty(ent.getKey(), ent.getValue());
             }
             connect.setInstanceFollowRedirects(true);
-            if (!(connect.getResponseCode() >= 200 && connect.getResponseCode() < 300))
+            if (connect.getResponseCode() < 200 || connect.getResponseCode() >= 300) {
                 throw new IOException(String.format("Invalid response of http server %d.", connect.getResponseCode()));
-            try (BufferedInputStream in = new BufferedInputStream(connect.getInputStream(), IOHelper.BUFFER_SIZE);
-                 FileOutputStream fout = new FileOutputStream(file, skip != 0)) {
-                byte data[] = new byte[IOHelper.BUFFER_SIZE];
+            }
+            try (final BufferedInputStream in = new BufferedInputStream(connect.getInputStream(), IOHelper.BUFFER_SIZE);
+                 final FileOutputStream fout = new FileOutputStream(this.file, this.skip != 0)) {
+                final byte[] data = new byte[IOHelper.BUFFER_SIZE];
                 int count = -1;
-                long timestamp = System.currentTimeMillis();
+                final long timestamp = System.currentTimeMillis();
                 int writed_local = 0;
-                in.skip(skip);
+                in.skip(this.skip);
                 while ((count = in.read(data)) != -1) {
                     fout.write(data, 0, count);
                     writed_local += count;
-                    if (System.currentTimeMillis() - timestamp > INTERVAL) {
-                        writed.set(writed_local);
+                    if (System.currentTimeMillis() - timestamp > 300L) {
+                        this.writed.set(writed_local);
                         LogHelper.debug("Downloaded %d", writed_local);
-                        if (interrupt.get()) {
+                        if (this.interrupt.get()) {
                             break;
                         }
+                        continue;
                     }
                 }
                 LogHelper.debug("Downloaded %d", writed_local);
-                writed.set(writed_local);
-            }
-        } else {
-            HttpsURLConnection connect = (HttpsURLConnection) (url).openConnection();
-            this.connect = connect;
-            if (method != null) connect.setRequestMethod(method);
-            for (Map.Entry<String, String> ent : requestProps.entrySet()) {
-                connect.setRequestProperty(ent.getKey(), ent.getValue());
-            }
-            connect.setInstanceFollowRedirects(true);
-            if (handler != null)
-                handler.check(connect.getServerCertificates());
-            if (!(connect.getResponseCode() >= 200 && connect.getResponseCode() < 300))
-                throw new IOException(String.format("Invalid response of http server %d.", connect.getResponseCode()));
-            try (BufferedInputStream in = new BufferedInputStream(connect.getInputStream(), IOHelper.BUFFER_SIZE);
-                 FileOutputStream fout = new FileOutputStream(file, skip != 0)) {
-                byte data[] = new byte[IOHelper.BUFFER_SIZE];
-                int count = -1;
-                long timestamp = System.currentTimeMillis();
-                int writed_local = 0;
-                in.skip(skip);
-                while ((count = in.read(data)) != -1) {
-                    fout.write(data, 0, count);
-                    writed_local += count;
-                    if (System.currentTimeMillis() - timestamp > INTERVAL) {
-                        writed.set(writed_local);
-                        LogHelper.debug("Downloaded %d", writed_local);
-                        if (interrupt.get()) {
-                            break;
-                        }
-                    }
-                }
-                LogHelper.debug("Downloaded %d", writed_local);
-                writed.set(writed_local);
+                this.writed.set(writed_local);
             }
         }
-        interrupted.set(true);
+        else {
+            final HttpsURLConnection connect2 = (HttpsURLConnection)this.url.openConnection();
+            this.connect = connect2;
+            if (this.method != null) {
+                connect2.setRequestMethod(this.method);
+            }
+            for (final Map.Entry<String, String> ent : this.requestProps.entrySet()) {
+                connect2.setRequestProperty(ent.getKey(), ent.getValue());
+            }
+            connect2.setInstanceFollowRedirects(true);
+            if (this.handler != null) {
+                this.handler.check(connect2.getServerCertificates());
+            }
+            if (connect2.getResponseCode() < 200 || connect2.getResponseCode() >= 300) {
+                throw new IOException(String.format("Invalid response of http server %d.", connect2.getResponseCode()));
+            }
+            try (final BufferedInputStream in = new BufferedInputStream(connect2.getInputStream(), IOHelper.BUFFER_SIZE);
+                 final FileOutputStream fout = new FileOutputStream(this.file, this.skip != 0)) {
+                final byte[] data = new byte[IOHelper.BUFFER_SIZE];
+                int count = -1;
+                final long timestamp = System.currentTimeMillis();
+                int writed_local = 0;
+                in.skip(this.skip);
+                while ((count = in.read(data)) != -1) {
+                    fout.write(data, 0, count);
+                    writed_local += count;
+                    if (System.currentTimeMillis() - timestamp > 300L) {
+                        this.writed.set(writed_local);
+                        LogHelper.debug("Downloaded %d", writed_local);
+                        if (this.interrupt.get()) {
+                            break;
+                        }
+                        continue;
+                    }
+                }
+                LogHelper.debug("Downloaded %d", writed_local);
+                this.writed.set(writed_local);
+            }
+        }
+        this.interrupted.set(true);
     }
-
+    
     @Override
     public void run() {
         try {
-            downloadFile();
-        } catch (Throwable ex) {
+            this.downloadFile();
+        }
+        catch (Throwable ex) {
             this.ex.set(ex);
             LogHelper.error(ex);
         }
-        if (connect != null)
-        	try {
-        		connect.disconnect();
-        	} catch (Throwable ignored) { }
+        if (this.connect != null) {
+            try {
+                this.connect.disconnect();
+            }
+            catch (Throwable t) {}
+        }
+    }
+    
+    static {
+        requestClient = Collections.singletonMap("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+    }
+    
+    @FunctionalInterface
+    public interface Handler
+    {
+        void check(final Certificate[] p0) throws IOException;
     }
 }
