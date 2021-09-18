@@ -1,102 +1,94 @@
 package ru.gravit.utils.command;
 
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.LogHelper;
+import java.util.Collections;
+import java.util.Objects;
 import ru.gravit.utils.helper.VerifyHelper;
-
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.LogHelper;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
-public abstract class CommandHandler implements Runnable {
-    private final Map<String, Command> commands = new ConcurrentHashMap<>(32);
-
-    public void eval(String line, boolean bell) {
+public abstract class CommandHandler implements Runnable
+{
+    private final Map<String, Command> commands;
+    
+    public CommandHandler() {
+        this.commands = new ConcurrentHashMap<String, Command>(32);
+    }
+    
+    public void eval(final String line, final boolean bell) {
         LogHelper.info("Command '%s'", line);
-
-        // Parse line to tokens
         String[] args;
         try {
             args = CommonHelper.parseCommand(line);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             LogHelper.error(e);
             return;
         }
-
-        // Evaluate command
-        eval(args, bell);
+        this.eval(args, bell);
     }
-
-
-    public void eval(String[] args, boolean bell) {
-        if (args.length == 0)
+    
+    public void eval(final String[] args, final boolean bell) {
+        if (args.length == 0) {
             return;
-
-        // Measure start time and invoke command
-        long startTime = System.currentTimeMillis();
+        }
+        final long startTime = System.currentTimeMillis();
         try {
-            lookup(args[0]).invoke(Arrays.copyOfRange(args, 1, args.length));
-        } catch (Exception e) {
+            this.lookup(args[0]).invoke((String[])Arrays.copyOfRange(args, 1, args.length));
+        }
+        catch (Exception e) {
             LogHelper.error(e);
         }
-
-        // Bell if invocation took > 1s
-        long endTime = System.currentTimeMillis();
-        if (bell && endTime - startTime >= 5000)
+        final long endTime = System.currentTimeMillis();
+        if (bell && endTime - startTime >= 5000L) {
             try {
-                bell();
-            } catch (IOException e) {
-                LogHelper.error(e);
+                this.bell();
             }
+            catch (IOException e2) {
+                LogHelper.error(e2);
+            }
+        }
     }
-
-
-    public Command lookup(String name) throws CommandException {
-        Command command = commands.get(name);
-        if (command == null)
+    
+    public Command lookup(final String name) throws CommandException {
+        final Command command = this.commands.get(name);
+        if (command == null) {
             throw new CommandException(String.format("Unknown command: '%s'", name));
+        }
         return command;
     }
-
-
+    
     public abstract String readLine() throws IOException;
-
+    
     private void readLoop() throws IOException {
-        for (String line = readLine(); line != null; line = readLine())
-            eval(line, true);
+        for (String line = this.readLine(); line != null; line = this.readLine()) {
+            this.eval(line, true);
+        }
     }
-
-
-    public void registerCommand(String name, Command command) {
+    
+    public void registerCommand(final String name, final Command command) {
         VerifyHelper.verifyIDName(name);
-        VerifyHelper.putIfAbsent(commands, name, Objects.requireNonNull(command, "command"),
-                String.format("Command has been already registered: '%s'", name));
+        VerifyHelper.putIfAbsent(this.commands, name, Objects.requireNonNull(command, "command"), String.format("Command has been already registered: '%s'", name));
     }
-
+    
     @Override
     public void run() {
         try {
-            readLoop();
-        } catch (IOException e) {
+            this.readLoop();
+        }
+        catch (IOException e) {
             LogHelper.error(e);
         }
     }
-
-
-
+    
     public abstract void bell() throws IOException;
-
-
+    
     public abstract void clear() throws IOException;
-
-
+    
     public Map<String, Command> commandsMap() {
-        return Collections.unmodifiableMap(commands);
+        return Collections.unmodifiableMap((Map<? extends String, ? extends Command>)this.commands);
     }
-
-
-
 }

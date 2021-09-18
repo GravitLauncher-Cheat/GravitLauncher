@@ -1,18 +1,22 @@
 package ru.gravit.launcher;
 
+import java.util.concurrent.atomic.AtomicReference;
 import javafx.application.Application;
 
-import java.util.concurrent.atomic.AtomicReference;
-
-public abstract class JSApplication extends Application {
-    private static final AtomicReference<JSApplication> INSTANCE = new AtomicReference<>();
-
+public abstract class JSApplication extends Application
+{
+    private static final AtomicReference<JSApplication> INSTANCE;
+    
     @LauncherAPI
     public static JSApplication getInstance() {
-        return INSTANCE.get();
+        return JSApplication.INSTANCE.get();
     }
-
+    
     public JSApplication() {
-        INSTANCE.set(this);
+        JSApplication.INSTANCE.set(this);
+    }
+    
+    static {
+        INSTANCE = new AtomicReference<JSApplication>();
     }
 }

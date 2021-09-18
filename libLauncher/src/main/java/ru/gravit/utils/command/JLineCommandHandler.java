@@ -1,51 +1,44 @@
 package ru.gravit.utils.command;
 
-import jline.console.ConsoleReader;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.LogHelper.Output;
-
 import java.io.IOException;
+import ru.gravit.utils.helper.LogHelper;
+import jline.console.ConsoleReader;
 
-public class JLineCommandHandler extends CommandHandler {
-    private final class JLineOutput implements Output {
-        @Override
-        public void println(String message) {
-            try {
-                reader.println(ConsoleReader.RESET_LINE + message);
-                reader.drawLine();
-                reader.flush();
-            } catch (IOException ignored) {
-                // Ignored
-            }
-        }
-    }
-
+public class JLineCommandHandler extends CommandHandler
+{
     private final ConsoleReader reader;
-
+    
     public JLineCommandHandler() throws IOException {
-        super();
-
-        // Set reader
-        reader = new ConsoleReader();
-        reader.setExpandEvents(false);
-
-        // Replace writer
+        (this.reader = new ConsoleReader()).setExpandEvents(false);
         LogHelper.removeStdOutput();
         LogHelper.addOutput(new JLineOutput(), LogHelper.OutputTypes.JANSI);
     }
-
+    
     @Override
     public void bell() throws IOException {
-        reader.beep();
+        this.reader.beep();
     }
-
+    
     @Override
     public void clear() throws IOException {
-        reader.clearScreen();
+        this.reader.clearScreen();
     }
-
+    
     @Override
     public String readLine() throws IOException {
-        return reader.readLine();
+        return this.reader.readLine();
+    }
+    
+    private final class JLineOutput implements LogHelper.Output
+    {
+        @Override
+        public void println(final String message) {
+            try {
+                JLineCommandHandler.this.reader.println((CharSequence)('\r' + message));
+                JLineCommandHandler.this.reader.drawLine();
+                JLineCommandHandler.this.reader.flush();
+            }
+            catch (IOException ex) {}
+        }
     }
 }
