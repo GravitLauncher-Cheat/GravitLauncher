@@ -30,7 +30,6 @@ public class AutogenConfig {
     public AutogenConfig() {
         try {
             final String pathLauncher = IOHelper.getCodeSource(Launcher.class).toString().replace("Launcher.jar", "");
-            System.out.println(pathLauncher+"config.json");
             JSONParser parser = new JSONParser();
             JSONObject data = (JSONObject) parser.parse(new FileReader(pathLauncher+"config.json"));
             this.projectname = data.get("projectname").toString();
