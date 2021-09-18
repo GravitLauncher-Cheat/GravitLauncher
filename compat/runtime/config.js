@@ -9,7 +9,7 @@ var config = {
     linkURL: new java.net.URL("http://dima-dencep.ml"), // URL for link under "Auth" button
 	
     // Menu config
-    discord_url: new java.net.URL("https://discord.gg/b9QG4ygY75"),
+    discord_url: new java.net.URL("https://github.com/gravitlauncher-cheat/gravitlauncher-cheat"),
 
     // Settings defaults
     settingsMagic: 0xC0DE5, // Ancient magic, don't touch
