@@ -1,10 +1,5 @@
-// 
-// Decompiled by Procyon v0.5.36
-// 
-
 package ru.gravit.launcher;
 
-import java.util.Iterator;
 import java.util.Set;
 import ru.gravit.launcher.serialize.HOutput;
 import java.util.Objects;
