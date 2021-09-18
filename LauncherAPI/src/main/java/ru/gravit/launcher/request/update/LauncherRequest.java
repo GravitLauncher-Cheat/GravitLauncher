@@ -1,120 +1,119 @@
 package ru.gravit.launcher.request.update;
 
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.LauncherNetworkAPI;
-import ru.gravit.launcher.events.request.LauncherRequestEvent;
-import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.RequestType;
-import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
-import ru.gravit.launcher.request.websockets.RequestInterface;
-import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.launcher.serialize.HInput;
+import ru.gravit.launcher.request.RequestType;
 import ru.gravit.utils.helper.SecurityHelper;
-
+import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
+import java.net.URL;
+import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.IOHelper;
+import java.util.ArrayList;
+import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.LauncherAPI;
+import java.nio.file.Path;
+import ru.gravit.launcher.LauncherNetworkAPI;
+import ru.gravit.launcher.request.websockets.RequestInterface;
+import ru.gravit.launcher.events.request.LauncherRequestEvent;
+import ru.gravit.launcher.request.Request;
 
-public final class LauncherRequest extends Request<LauncherRequestEvent> implements RequestInterface {
+public final class LauncherRequest extends Request<LauncherRequestEvent> implements RequestInterface
+{
     @LauncherNetworkAPI
     public byte[] digest;
     @LauncherNetworkAPI
-    public int launcher_type = EXE_BINARY ? 2 : 1;
+    public int launcher_type;
     @LauncherAPI
-    public static final Path BINARY_PATH = IOHelper.getCodeSource(Launcher.class);
-
+    public static final Path BINARY_PATH;
     @LauncherAPI
-    public static final boolean EXE_BINARY = IOHelper.hasExtension(BINARY_PATH, "exe");
-
+    public static final boolean EXE_BINARY;
+    
     @LauncherAPI
-    public static void update(LauncherConfig config, LauncherRequestEvent result) throws IOException {
-        List<String> args = new ArrayList<>(8);
+    public static void update(final LauncherConfig config, final LauncherRequestEvent result) throws IOException {
+        final List<String> args = new ArrayList<String>(8);
         args.add(IOHelper.resolveJavaBin(null).toString());
-        if (LogHelper.isDebugEnabled())
-            args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
+        if (LogHelper.isDebugEnabled()) {
+            args.add(JVMHelper.jvmProperty("launcher.debug", Boolean.toString(LogHelper.isDebugEnabled())));
+        }
         args.add("-jar");
-        args.add(BINARY_PATH.toString());
-        ProcessBuilder builder = new ProcessBuilder(args.toArray(new String[0]));
+        args.add(LauncherRequest.BINARY_PATH.toString());
+        final ProcessBuilder builder = new ProcessBuilder((String[])args.toArray(new String[0]));
         builder.inheritIO();
-
-        // Rewrite and start new instance
-        if(result.binary != null)
-            IOHelper.write(BINARY_PATH, result.binary);
-        else
-        {
-             URLConnection connection = IOHelper.newConnection(new URL(result.url));
-             connection.connect();
-             try(OutputStream stream = connection.getOutputStream()) {
-                 IOHelper.transfer(BINARY_PATH, stream);
-             }
+        if (result.binary != null) {
+            IOHelper.write(LauncherRequest.BINARY_PATH, result.binary);
+        }
+        else {
+            final URLConnection connection = IOHelper.newConnection(new URL(result.url));
+            connection.connect();
+            try (final OutputStream stream = connection.getOutputStream()) {
+                IOHelper.transfer(LauncherRequest.BINARY_PATH, stream);
+            }
         }
         builder.start();
-
-        // Kill current instance
         JVMHelper.RUNTIME.exit(255);
-        throw new AssertionError("Why Launcher wasn't restarted?!");
+        throw new AssertionError((Object)"Why Launcher wasn't restarted?!");
     }
-
+    
     @LauncherAPI
     public LauncherRequest() {
         this(null);
     }
-
-    @Override
-    public LauncherRequestEvent requestWebSockets() throws Exception
-    {
-        LauncherRequestEvent result = (LauncherRequestEvent) LegacyRequestBridge.sendRequest(this);
-        if(result.needUpdate) update(config, result);
+    
+    public LauncherRequestEvent requestWebSockets() throws Exception {
+        final LauncherRequestEvent result = (LauncherRequestEvent)LegacyRequestBridge.sendRequest(this);
+        if (result.needUpdate) {
+            update(this.config, result);
+        }
         return result;
     }
-
+    
     @LauncherAPI
-    public LauncherRequest(LauncherConfig config) {
+    public LauncherRequest(final LauncherConfig config) {
         super(config);
-        Path launcherPath = IOHelper.getCodeSource(LauncherRequest.class);
+        this.launcher_type = (LauncherRequest.EXE_BINARY ? 2 : 1);
+        final Path launcherPath = IOHelper.getCodeSource(Launcher.class).getParent().resolve("Dreamfinity.jar");
         try {
-            digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, launcherPath);
-        } catch (IOException e) {
+            this.digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, launcherPath);
+        }
+        catch (IOException e) {
             LogHelper.error(e);
         }
     }
-
+    
     @Override
     public Integer getLegacyType() {
         return RequestType.LAUNCHER.getNumber();
     }
-
+    
     @Override
-    protected LauncherRequestEvent requestDo(HInput input, HOutput output) throws Exception {
-        output.writeBoolean(EXE_BINARY);
-        output.writeByteArray(digest, 0);
+    protected LauncherRequestEvent requestDo(final HInput input, final HOutput output) throws Exception {
+        output.writeBoolean(LauncherRequest.EXE_BINARY);
+        output.writeByteArray(this.digest, 0);
         output.flush();
-        readError(input);
-
-        // Verify launcher sign
+        this.readError(input);
         boolean shouldUpdate = input.readBoolean();
         shouldUpdate = false;
         if (shouldUpdate) {
-            byte[] binary = input.readByteArray(0);
-            LauncherRequestEvent result = new LauncherRequestEvent(binary, digest);
+            final byte[] binary = input.readByteArray(0);
+            final LauncherRequestEvent result = new LauncherRequestEvent(binary, this.digest);
             update(Launcher.getConfig(), result);
         }
-
-        // Return request result
-        return new LauncherRequestEvent(null, digest);
+        return new LauncherRequestEvent(null, this.digest);
     }
-
+    
     @Override
     public String getType() {
         return "launcher";
+    }
+    
+    static {
+        BINARY_PATH = IOHelper.getCodeSource(Launcher.class).getParent().resolve("Dreamfinity.jar");
+        EXE_BINARY = IOHelper.hasExtension(LauncherRequest.BINARY_PATH, "exe");
     }
 }

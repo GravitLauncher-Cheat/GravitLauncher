@@ -1,35 +1,41 @@
+// 
+// Decompiled by Procyon v0.5.36
+// 
+
 package ru.gravit.launcher.request.websockets;
 
-import com.google.gson.*;
-import ru.gravit.launcher.request.ResultInterface;
-
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonDeserializationContext;
 import java.lang.reflect.Type;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonDeserializer;
+import ru.gravit.launcher.request.ResultInterface;
+import com.google.gson.JsonSerializer;
 
-public class JsonResultAdapter implements JsonSerializer<ResultInterface>, JsonDeserializer<ResultInterface> {
+public class JsonResultAdapter implements JsonSerializer<ResultInterface>, JsonDeserializer<ResultInterface>
+{
     private final ClientWebSocketService service;
     private static final String PROP_NAME = "type";
-
-    public JsonResultAdapter(ClientWebSocketService service) {
+    
+    public JsonResultAdapter(final ClientWebSocketService service) {
         this.service = service;
     }
-
+    
     @Override
-    public ResultInterface deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
-        Class<? extends ResultInterface> cls = service.getResultClass(typename);
-
-
-        return (ResultInterface) context.deserialize(json, cls);
+    public ResultInterface deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
+        final String typename = json.getAsJsonObject().getAsJsonPrimitive("type").getAsString();
+        final Class<? extends ResultInterface> cls = this.service.getResultClass(typename);
+        return context.deserialize(json, cls);
     }
-
+    
     @Override
-    public JsonElement serialize(ResultInterface src, Type typeOfSrc, JsonSerializationContext context) {
-        // note : won't work, you must delegate this
-        JsonObject jo = context.serialize(src).getAsJsonObject();
-
-        String classPath = src.getType();
-        jo.add(PROP_NAME, new JsonPrimitive(classPath));
-
+    public JsonElement serialize(final ResultInterface src, final Type typeOfSrc, final JsonSerializationContext context) {
+        final JsonObject jo = context.serialize(src).getAsJsonObject();
+        final String classPath = src.getType();
+        jo.add("type", new JsonPrimitive(classPath));
         return jo;
     }
 }
