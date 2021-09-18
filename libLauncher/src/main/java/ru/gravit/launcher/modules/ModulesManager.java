@@ -2,24 +2,25 @@ package ru.gravit.launcher.modules;
 
 import java.net.URL;
 
-public interface ModulesManager extends AutoCloseable {
+public interface ModulesManager extends AutoCloseable
+{
     void initModules();
-
-    void load(Module module);
-
-    void loadModule(URL jarpath) throws Exception;
-
-    void loadModule(URL jarpath, String classname) throws Exception;
-
+    
+    void load(final Module p0);
+    
+    void loadModule(final URL p0) throws Exception;
+    
+    void loadModule(final URL p0, final String p1) throws Exception;
+    
     void postInitModules();
-
+    
     void preInitModules();
-
+    
     void finishModules();
-
+    
     void printModules();
-
+    
     void sort();
-
-    void registerModule(Module module);
+    
+    void registerModule(final Module p0);
 }

@@ -3,57 +3,43 @@ package ru.gravit.launcher.hasher;
 import ru.gravit.launcher.LauncherAPI;
 import java.util.Collection;
 
-public final class FileNameMatcher {
-    private static final String[] NO_ENTRIES = new String[0];
-
-    private static boolean anyMatch(String[] entries, Collection<String> path) {
-        //return path.stream().anyMatch(e -> Arrays.stream(entries).anyMatch(p -> p.endsWith(e)));
-        String jpath = String.join("/", path);
-        for(String e : entries)
-        {
-            /*String[] split = e.split("/");
-            //int index = 0;
-            //for(String p : path)
-            //{
-            //    if(index>=split.length)
-                {
-                    return true;
-                }
-                if(!p.equals(split[index])) {
-                    break;
-                }
-                index++;
-            }*/
-            if(jpath.startsWith(e)) return true;
+public final class FileNameMatcher
+{
+    private static final String[] NO_ENTRIES;
+    private final String[] update;
+    private final String[] verify;
+    private final String[] exclusions;
+    
+    private static boolean anyMatch(final String[] entries, final Collection<String> path) {
+        final String jpath = String.join("/", path);
+        for (final String e : entries) {
+            if (jpath.startsWith(e)) {
+                return true;
+            }
         }
         return false;
     }
-
-    // Instance
-    private final String[] update;
-    private final String[] verify;
-
-    private final String[] exclusions;
-
-
+    
     @LauncherAPI
-    public FileNameMatcher(String[] update, String[] verify, String[] exclusions) {
+    public FileNameMatcher(final String[] update, final String[] verify, final String[] exclusions) {
         this.update = update;
         this.verify = verify;
         this.exclusions = exclusions;
     }
-
-
-    public boolean shouldUpdate(Collection<String> path) {
-        return (anyMatch(update, path) || anyMatch(verify, path)) && !anyMatch(exclusions, path);
+    
+    public boolean shouldUpdate(final Collection<String> path) {
+        return (anyMatch(this.update, path) || anyMatch(this.verify, path)) && !anyMatch(this.exclusions, path);
     }
-
-
-    public boolean shouldVerify(Collection<String> path) {
-        return anyMatch(verify, path) && !anyMatch(exclusions, path);
+    
+    public boolean shouldVerify(final Collection<String> path) {
+        return anyMatch(this.verify, path) && !anyMatch(this.exclusions, path);
     }
-
+    
     public FileNameMatcher verifyOnly() {
-        return new FileNameMatcher(NO_ENTRIES, verify, exclusions);
+        return new FileNameMatcher(FileNameMatcher.NO_ENTRIES, this.verify, this.exclusions);
+    }
+    
+    static {
+        NO_ENTRIES = new String[0];
     }
 }

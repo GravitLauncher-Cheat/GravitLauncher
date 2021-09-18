@@ -1,5 +1,6 @@
 package ru.gravit.launcher.request;
 
-public interface ResultInterface {
+public interface ResultInterface
+{
     String getType();
 }
