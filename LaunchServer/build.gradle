@@ -8,6 +8,9 @@ repositories {
 	maven {
 		url "http://maven.geomajas.org/"
 	}
+	maven {
+		url "https://repo1.maven.org/maven2/"
+	}
 }
 
 sourceCompatibility = '1.8'
@@ -39,7 +42,7 @@ jar {
 
 dependencies {
 	pack project(':libLauncher')
-	bundle project(':Radon')
+	//bundle project(':Radon')
 	bundle 'mysql:mysql-connector-java:8.0.13'
 	bundle 'jline:jline:2.14.6'
 	bundle 'net.sf.proguard:proguard-base:6.0.3'
@@ -48,6 +51,8 @@ dependencies {
 	bundle 'commons-codec:commons-codec:1.11'
 	bundle 'org.javassist:javassist:3.24.1-GA'
 	bundle 'io.netty:netty-all:4.1.32.Final'
+	bundle 'org.ow2.asm:asm:7.0'
+	bundle 'org.ow2.asm:asm-tree:7.0'
 
 	bundle 'org.slf4j:slf4j-simple:1.7.25'
 	bundle 'org.slf4j:slf4j-api:1.7.25'

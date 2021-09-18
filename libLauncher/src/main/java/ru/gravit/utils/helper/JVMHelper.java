@@ -48,7 +48,7 @@ public final class JVMHelper
                 ++i;
                 continue;
             }
-            break;
+            //break;
         }
         throw new ClassNotFoundException(Arrays.toString(names));
     }
