@@ -49,7 +49,7 @@ public final class ProfilesRequest extends Request<ProfilesRequestEvent> impleme
         List<ClientProfile> profiles = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             String prof = input.readString(0);
-            profiles.add(Launcher.gson.fromJson(prof, ClientProfile.class));
+            //profiles.add(Launcher.gson.fromJson(prof, ClientProfile.class));
         }
         // Return request result
         return new ProfilesRequestEvent(profiles);
