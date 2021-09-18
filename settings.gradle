@@ -1,5 +1,0 @@
-rootProject.name = 'GravitLauncher'
-
-include 'Launcher'
-include 'libLauncher'
-include 'LauncherAPI'
