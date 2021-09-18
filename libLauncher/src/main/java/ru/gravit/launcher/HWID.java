@@ -1,11 +1,12 @@
 package ru.gravit.launcher;
 
-public interface HWID {
+public interface HWID
+{
     String getSerializeString();
-
-    int getLevel(); //Уровень доверия, насколько уникальные значения
-
-    int compare(HWID hwid);
-
+    
+    int getLevel();
+    
+    int compare(final HWID p0);
+    
     boolean isNull();
 }
