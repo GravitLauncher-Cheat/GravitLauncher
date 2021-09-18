@@ -42,7 +42,7 @@ public final class ProfilesRequest extends Request<ProfilesRequestEvent> impleme
     protected ProfilesRequestEvent requestDo(HInput input, HOutput output) throws Exception {
         output.writeBoolean(true);
         output.flush();
-        readError(input);
+        //readError(input);
 
         int count = 4242;
         //  input.readLength(0)
