@@ -2,14 +2,15 @@ package ru.gravit.utils;
 
 import ru.gravit.utils.helper.LogHelper;
 
-public final class NativeJVMHalt {
-    public NativeJVMHalt(int haltCode) {
+public final class NativeJVMHalt
+{
+    public int haltCode;
+    
+    public NativeJVMHalt(final int haltCode) {
         this.haltCode = haltCode;
         LogHelper.error("JVM exit code %d", haltCode);
-        halt();
+        this.halt();
     }
-
-    public int haltCode;
-
+    
     public native void halt();
 }
