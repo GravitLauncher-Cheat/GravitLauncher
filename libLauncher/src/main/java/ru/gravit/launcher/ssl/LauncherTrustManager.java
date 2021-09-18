@@ -1,3 +1,7 @@
+// 
+// Decompiled by Procyon v0.5.36
+// 
+
 package ru.gravit.launcher.ssl;
 
 import java.security.cert.X509Certificate;

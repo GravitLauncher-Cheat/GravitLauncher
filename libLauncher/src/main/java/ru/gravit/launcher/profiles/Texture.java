@@ -29,7 +29,6 @@ public final class Texture extends StreamObject
     @LauncherAPI
     public Texture(final String url, final boolean cloak) throws IOException {
         this.url = IOHelper.verifyURL(url);
-		
 		byte[] texture;
         try (final InputStream input = IOHelper.newInput(new URL(url))) {
             texture = IOHelper.read(input);

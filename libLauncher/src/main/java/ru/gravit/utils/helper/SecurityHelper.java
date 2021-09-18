@@ -128,14 +128,17 @@ public final class SecurityHelper
         return token.length() == 32 && token.chars().allMatch(ch -> "0123456789abcdef".indexOf(ch) >= 0);
     }
     
-    private static Cipher newCipher(String algo) {
-        // IDK Why, but collapsing catch blocks makes ProGuard generate invalid stackmap
+    private static Cipher newCipher(final String algo) {
         try {
             return Cipher.getInstance(algo);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+        }
+        catch (NoSuchAlgorithmException | NoSuchPaddingException ex2) {
+            final GeneralSecurityException ex;
+            final GeneralSecurityException e = ex2;
             throw new InternalError(e);
         }
     }
+    
     public static MessageDigest newDigest(final DigestAlgorithm algo) {
         VerifyHelper.verify(algo, a -> a != DigestAlgorithm.PLAIN, "PLAIN digest");
         try {

@@ -151,32 +151,32 @@ public final class ServerPinger
     
     @LauncherAPI
     public Result ping() throws IOException {
-        Instant now = Instant.now();
-        synchronized (cacheLock) {
-            // Update ping cache
-            if (cacheTime == null || Duration.between(now, cacheTime).toMillis() >= IOHelper.SOCKET_TIMEOUT) {
-                cacheTime = now;
+        final Instant now = Instant.now();
+        synchronized (this.cacheLock) {
+            if (this.cacheTime == null || Duration.between(now, this.cacheTime).toMillis() >= IOHelper.SOCKET_TIMEOUT) {
+                this.cacheTime = now;
                 try {
-                    cache = doPing();
-                    cacheException = null;
-                } catch (IOException | IllegalArgumentException /* Protocol error */ e) {
-                    cache = null;
-                    cacheException = e;
+                    this.cache = this.doPing();
+                    this.cacheException = null;
+                }
+                catch (IOException | IllegalArgumentException ex2) {
+                    final Exception ex;
+                    final Exception e = ex2;
+                    this.cache = null;
+                    this.cacheException = e;
                 }
             }
-
-            // Verify is result available
-            if (cache == null) {
-                if (cacheException instanceof IOException)
-                    throw (IOException) cacheException;
-                if (cacheException instanceof IllegalArgumentException)
-                    throw (IllegalArgumentException) cacheException;
-                cacheException = new IOException("Unavailable");
-                throw (IOException) cacheException;
+            if (this.cache != null) {
+                return this.cache;
             }
-
-            // We're done
-            return cache;
+            if (this.cacheException instanceof IOException) {
+                throw (IOException)this.cacheException;
+            }
+            if (this.cacheException instanceof IllegalArgumentException) {
+                throw (IllegalArgumentException)this.cacheException;
+            }
+            this.cacheException = new IOException("Unavailable");
+            throw (IOException)this.cacheException;
         }
     }
     

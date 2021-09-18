@@ -41,8 +41,8 @@ public class SimpleModuleManager implements ModulesManager
     @Override
     public void sort() {
         this.modules.sort((m1, m2) -> {
-            final int p1 = m1.getPriority();
-            final int p2 = m2.getPriority();
+            int p1 = m1.getPriority();
+            int p2 = m2.getPriority();
             return Integer.compare(p2, p1);
         });
     }

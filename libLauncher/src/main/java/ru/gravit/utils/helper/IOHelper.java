@@ -670,17 +670,20 @@ public final class IOHelper
     public static BufferedImage verifyTexture(final BufferedImage skin, final boolean cloak) {
         return VerifyHelper.verify(skin, i -> isValidTextureBounds(i.getWidth(), i.getHeight(), cloak), String.format("Invalid texture bounds: %dx%d", skin.getWidth(), skin.getHeight()));
     }
-	
-	@LauncherAPI
-    public static String verifyURL(String url) {
+    
+    @LauncherAPI
+    public static String verifyURL(final String url) {
         try {
             new URL(url).toURI();
             return url;
-        } catch (MalformedURLException | URISyntaxException e) {
+        }
+        catch (MalformedURLException | URISyntaxException ex2) {
+            final Exception ex;
+            final Exception e = ex2;
             throw new IllegalArgumentException("Invalid URL", e);
         }
     }
-   
+    
     @LauncherAPI
     public static void walk(final Path dir, final FileVisitor<Path> visitor, final boolean hidden) throws IOException {
         Files.walkFileTree(dir, IOHelper.WALK_OPTIONS, Integer.MAX_VALUE, hidden ? visitor : new SkipHiddenVisitor((FileVisitor)visitor));

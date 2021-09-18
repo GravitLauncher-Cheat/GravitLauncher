@@ -69,7 +69,7 @@ public final class Launcher
                 config = new LauncherConfig(input);
             }
             catch (IOException | InvalidKeySpecException ex2) {
-                //final Exception ex;
+                final Exception ex;
                 final Exception e = ex2;
                 throw new SecurityException(e);
             }
