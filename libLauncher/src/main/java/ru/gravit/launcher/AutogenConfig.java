@@ -63,7 +63,6 @@ public class AutogenConfig
                     ioException.printStackTrace();
                 }
             }
-
         }
     }
     
