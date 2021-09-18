@@ -31,12 +31,10 @@ public class HasherStore
     
     @LauncherAPI
     public void copyCompareFilesTo(final String name, final Path targetDir, final HashedDir targetHDir, final String[] shared) {
-        FileNameMatcher nm;
-        HashedDir compare;
         this.store.forEach((key, e) -> {
             if (!key.equals(name)) {
-                nm = new FileNameMatcher(shared, null, null);
-                compare = targetHDir.sideCompare(e.hdir, nm, new LinkedList<String>(), true);
+                FileNameMatcher nm = new FileNameMatcher(shared, null, null);
+                HashedDir compare = targetHDir.sideCompare(e.hdir, nm, new LinkedList<String>(), true);
                 compare.map().forEach((arg1, arg2) -> this.recurseCopy(arg1, arg2, name, targetDir, e.dir));
             }
         });
