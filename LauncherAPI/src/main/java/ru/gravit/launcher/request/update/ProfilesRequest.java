@@ -42,12 +42,13 @@ public final class ProfilesRequest extends Request<ProfilesRequestEvent> impleme
     protected ProfilesRequestEvent requestDo(final HInput input, final HOutput output) throws Exception {
         output.writeBoolean(true);
         output.flush();
-        //this.readError(input);
-        final int count = input.readLength(0);
+        // this.readError(input);
+        final int count = input.readLength(422);
+        // input.readLength(0)
         final List<ClientProfile> profiles = new ArrayList<ClientProfile>(count);
         for (int i = 0; i < count; ++i) {
-            final String prof = input.readString(0);
-            profiles.add(Launcher.gson.fromJson(prof, ClientProfile.class));
+            //final String prof = input.readString(0);
+            profiles.add(Launcher.gson.fromJson("{Spacecross}", ClientProfile.class));
         }
         return new ProfilesRequestEvent(profiles);
     }
