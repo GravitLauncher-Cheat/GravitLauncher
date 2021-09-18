@@ -1,113 +1,114 @@
 package ru.gravit.launcher.serialize;
 
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.utils.helper.IOHelper;
-
-import java.io.Flushable;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.math.BigInteger;
-import java.util.Objects;
 import java.util.UUID;
+import java.math.BigInteger;
+import ru.gravit.utils.helper.IOHelper;
+import java.io.IOException;
+import java.util.Objects;
+import ru.gravit.launcher.LauncherAPI;
+import java.io.OutputStream;
+import java.io.Flushable;
 
-public final class HOutput implements AutoCloseable, Flushable {
+public final class HOutput implements AutoCloseable, Flushable
+{
     @LauncherAPI
     public final OutputStream stream;
-
+    
     @LauncherAPI
-    public HOutput(OutputStream stream) {
+    public HOutput(final OutputStream stream) {
         this.stream = Objects.requireNonNull(stream, "stream");
     }
-
+    
     @Override
     public void close() throws IOException {
-        stream.close();
+        this.stream.close();
     }
-
+    
     @Override
     public void flush() throws IOException {
-        stream.flush();
+        this.stream.flush();
     }
-
+    
     @LauncherAPI
-    public void writeASCII(String s, int maxBytes) throws IOException {
-        writeByteArray(IOHelper.encodeASCII(s), maxBytes);
+    public void writeASCII(final String s, final int maxBytes) throws IOException {
+        this.writeByteArray(IOHelper.encodeASCII(s), maxBytes);
     }
-
+    
     @LauncherAPI
-    public void writeBigInteger(BigInteger bi, int max) throws IOException {
-        writeByteArray(bi.toByteArray(), max);
+    public void writeBigInteger(final BigInteger bi, final int max) throws IOException {
+        this.writeByteArray(bi.toByteArray(), max);
     }
-
+    
     @LauncherAPI
-    public void writeBoolean(boolean b) throws IOException {
-        writeUnsignedByte(b ? 0b1 : 0b0);
+    public void writeBoolean(final boolean b) throws IOException {
+        this.writeUnsignedByte(b ? 1 : 0);
     }
-
+    
     @LauncherAPI
-    public void writeByteArray(byte[] bytes, int max) throws IOException {
-        writeLength(bytes.length, max);
-        stream.write(bytes);
+    public void writeByteArray(final byte[] bytes, final int max) throws IOException {
+        this.writeLength(bytes.length, max);
+        this.stream.write(bytes);
     }
-
+    
     @LauncherAPI
-    public void writeInt(int i) throws IOException {
-        writeUnsignedByte(i >>> 24 & 0xFF);
-        writeUnsignedByte(i >>> 16 & 0xFF);
-        writeUnsignedByte(i >>> 8 & 0xFF);
-        writeUnsignedByte(i & 0xFF);
+    public void writeInt(final int i) throws IOException {
+        this.writeUnsignedByte(i >>> 24 & 0xFF);
+        this.writeUnsignedByte(i >>> 16 & 0xFF);
+        this.writeUnsignedByte(i >>> 8 & 0xFF);
+        this.writeUnsignedByte(i & 0xFF);
     }
-
+    
     @LauncherAPI
-    public void writeLength(int length, int max) throws IOException {
+    public void writeLength(final int length, final int max) throws IOException {
         IOHelper.verifyLength(length, max);
-        if (max >= 0)
-            writeVarInt(length);
+        if (max >= 0) {
+            this.writeVarInt(length);
+        }
     }
-
+    
     @LauncherAPI
-    public void writeLong(long l) throws IOException {
-        writeInt((int) (l >> 32));
-        writeInt((int) l);
+    public void writeLong(final long l) throws IOException {
+        this.writeInt((int)(l >> 32));
+        this.writeInt((int)l);
     }
-
+    
     @LauncherAPI
-    public void writeShort(short s) throws IOException {
-        writeUnsignedByte(s >>> 8 & 0xFF);
-        writeUnsignedByte(s & 0xFF);
+    public void writeShort(final short s) throws IOException {
+        this.writeUnsignedByte(s >>> 8 & 0xFF);
+        this.writeUnsignedByte(s & 0xFF);
     }
-
+    
     @LauncherAPI
-    public void writeString(String s, int maxBytes) throws IOException {
-        writeByteArray(IOHelper.encode(s), maxBytes);
+    public void writeString(final String s, final int maxBytes) throws IOException {
+        this.writeByteArray(IOHelper.encode(s), maxBytes);
     }
-
+    
     @LauncherAPI
-    public void writeUnsignedByte(int b) throws IOException {
-        stream.write(b);
+    public void writeUnsignedByte(final int b) throws IOException {
+        this.stream.write(b);
     }
-
+    
     @LauncherAPI
-    public void writeUUID(UUID uuid) throws IOException {
-        writeLong(uuid.getMostSignificantBits());
-        writeLong(uuid.getLeastSignificantBits());
+    public void writeUUID(final UUID uuid) throws IOException {
+        this.writeLong(uuid.getMostSignificantBits());
+        this.writeLong(uuid.getLeastSignificantBits());
     }
-
+    
     @LauncherAPI
     public void writeVarInt(int i) throws IOException {
-        while ((i & ~0x7FL) != 0) {
-            writeUnsignedByte(i & 0x7F | 0x80);
+        while (((long)i & 0xFFFFFFFFFFFFFF80L) != 0x0L) {
+            this.writeUnsignedByte((i & 0x7F) | 0x80);
             i >>>= 7;
         }
-        writeUnsignedByte(i);
+        this.writeUnsignedByte(i);
     }
-
+    
     @LauncherAPI
     public void writeVarLong(long l) throws IOException {
-        while ((l & ~0x7FL) != 0) {
-            writeUnsignedByte((int) l & 0x7F | 0x80);
+        while ((l & 0xFFFFFFFFFFFFFF80L) != 0x0L) {
+            this.writeUnsignedByte(((int)l & 0x7F) | 0x80);
             l >>>= 7;
         }
-        writeUnsignedByte((int) l);
+        this.writeUnsignedByte((int)l);
     }
 }

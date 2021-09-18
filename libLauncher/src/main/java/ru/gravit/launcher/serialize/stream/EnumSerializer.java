@@ -1,38 +1,40 @@
 package ru.gravit.launcher.serialize.stream;
 
-import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.stream.EnumSerializer.Itf;
 import ru.gravit.utils.helper.VerifyHelper;
-
-import java.io.IOException;
 import java.util.HashMap;
+import ru.gravit.launcher.LauncherAPI;
+import java.io.IOException;
+import ru.gravit.launcher.serialize.HOutput;
 import java.util.Map;
 
-public final class EnumSerializer<E extends Enum<?> & Itf> {
-    @FunctionalInterface
-    public interface Itf {
-        @LauncherAPI
-        int getNumber();
-    }
-
+public final class EnumSerializer<E extends Enum>
+{
+    private final Map<Integer, E> map;
+    
     @LauncherAPI
-    public static void write(HOutput output, Itf itf) throws IOException {
+    public static void write(final HOutput output, final Itf itf) throws IOException {
         output.writeVarInt(itf.getNumber());
     }
-
-    private final Map<Integer, E> map = new HashMap<>(16);
-
+    
     @LauncherAPI
-    public EnumSerializer(Class<E> clazz) {
-        for (E e : clazz.getEnumConstants())
-            VerifyHelper.putIfAbsent(map, e.getNumber(), e, "Duplicate number for enum constant " + e.name());
+    public EnumSerializer(final Class<E> clazz) {
+        this.map = new HashMap<Integer, E>(16);
+        for (final E e : clazz.getEnumConstants()) {
+            VerifyHelper.putIfAbsent((Map<Integer, Enum>)this.map, ((Itf)e).getNumber(), (Enum)e, "Duplicate number for enum constant " + ((java.lang.Enum)e).name());
+        }
     }
-
+    
     @LauncherAPI
-    public E read(HInput input) throws IOException {
-        int n = input.readVarInt();
-        return VerifyHelper.getMapValue(map, n, "Unknown enum number: " + n);
+    public E read(final HInput input) throws IOException {
+        final int n = input.readVarInt();
+        return VerifyHelper.getMapValue(this.map, n, "Unknown enum number: " + n);
+    }
+    
+    @FunctionalInterface
+    public interface Itf
+    {
+        @LauncherAPI
+        int getNumber();
     }
 }

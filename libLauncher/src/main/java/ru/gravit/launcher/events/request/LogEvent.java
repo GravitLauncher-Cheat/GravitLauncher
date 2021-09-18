@@ -2,14 +2,16 @@ package ru.gravit.launcher.events.request;
 
 import ru.gravit.launcher.request.ResultInterface;
 
-public class LogEvent implements ResultInterface {
+public class LogEvent implements ResultInterface
+{
+    public String string;
+    
     @Override
     public String getType() {
         return "log";
     }
-    public String string;
-
-    public LogEvent(String string) {
+    
+    public LogEvent(final String string) {
         this.string = string;
     }
 }

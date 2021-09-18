@@ -1,76 +1,36 @@
 package ru.gravit.launcher.profiles;
 
+import java.util.HashMap;
+import java.util.Map;
+import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.utils.helper.IOHelper;
+import java.net.InetSocketAddress;
+import java.io.IOException;
+import java.util.Arrays;
+import ru.gravit.launcher.hasher.HashedDir;
+import java.util.Collection;
+import ru.gravit.launcher.profiles.optional.OptionalType;
+import java.util.Iterator;
+import java.util.HashSet;
+import java.util.ArrayList;
+import ru.gravit.launcher.profiles.optional.OptionalFile;
+import java.util.Set;
+import java.util.List;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.FileNameMatcher;
-import ru.gravit.launcher.hasher.HashedDir;
-import ru.gravit.launcher.profiles.optional.OptionalFile;
-import ru.gravit.launcher.profiles.optional.OptionalType;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.*;
-
-public final class ClientProfile implements Comparable<ClientProfile> {
-    @LauncherAPI
-    public enum Version {
-        MC147("1.4.7", 51),
-        MC152("1.5.2", 61),
-        MC164("1.6.4", 78),
-        MC172("1.7.2", 4),
-        MC1710("1.7.10", 5),
-        MC189("1.8.9", 47),
-        MC194("1.9.4", 110),
-        MC1102("1.10.2", 210),
-        MC1112("1.11.2", 316),
-        MC1122("1.12.2", 340),
-        MC113("1.13", 393),
-        MC1131("1.13.1", 401),
-        MC1132("1.13.2", 402);
-        private static final Map<String, Version> VERSIONS;
-
-        static {
-            Version[] versionsValues = values();
-            VERSIONS = new HashMap<>(versionsValues.length);
-            for (Version version : versionsValues)
-                VERSIONS.put(version.name, version);
-        }
-
-        public static Version byName(String name) {
-            return VerifyHelper.getMapValue(VERSIONS, name, String.format("Unknown client version: '%s'", name));
-        }
-
-        public final String name;
-
-        public final int protocol;
-
-        Version(String name, int protocol) {
-            this.name = name;
-            this.protocol = protocol;
-        }
-
-        @Override
-        public String toString() {
-            return "Minecraft " + name;
-        }
-    }
-
-    public static final boolean profileCaseSensitive = Boolean.getBoolean("launcher.clientProfile.caseSensitive");
-
-    private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
-            new String[0], new String[]{"indexes", "objects"}, new String[0]);
-    // Version
+public final class ClientProfile implements Comparable<ClientProfile>
+{
+    public static final boolean profileCaseSensitive;
+    private static final FileNameMatcher ASSET_MATCHER;
     @LauncherAPI
     private String version;
     @LauncherAPI
     private String assetIndex;
-
     @LauncherAPI
     private String dir;
     @LauncherAPI
     private String assetDir;
-    // Client
     @LauncherAPI
     private int sortIndex;
     @LauncherAPI
@@ -81,463 +41,582 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private String serverAddress;
     @LauncherAPI
     private int serverPort;
-
-    //  Updater and client watch service
     @LauncherAPI
-    private final List<String> update = new ArrayList<>();
+    private final List<String> update;
     @LauncherAPI
-    private final List<String> updateExclusions = new ArrayList<>();
+    private final List<String> updateExclusions;
     @LauncherAPI
-    private final List<String> updateShared = new ArrayList<>();
+    private final List<String> updateShared;
     @LauncherAPI
-    private final List<String> updateVerify = new ArrayList<>();
+    private final List<String> updateVerify;
     @LauncherAPI
-    private final Set<OptionalFile> updateOptional = new HashSet<>();
+    private final Set<OptionalFile> updateOptional;
     @LauncherAPI
     private boolean updateFastCheck;
     @LauncherAPI
     private boolean useWhitelist;
-    // Client launcher
     @LauncherAPI
     private String mainClass;
     @LauncherAPI
-    private final List<String> jvmArgs = new ArrayList<>();
+    private final List<String> jvmArgs;
     @LauncherAPI
-    private final List<String> classPath = new ArrayList<>();
+    private final List<String> classPath;
     @LauncherAPI
-    private final List<String> clientArgs = new ArrayList<>();
+    private final List<String> clientArgs;
     @LauncherAPI
-    private final List<String> whitelist = new ArrayList<>();
-
-    @Override
-    public int compareTo(ClientProfile o) {
-        return Integer.compare(getSortIndex(), o.getSortIndex());
+    private final List<String> whitelist;
+    
+    public ClientProfile() {
+        this.update = new ArrayList<String>();
+        this.updateExclusions = new ArrayList<String>();
+        this.updateShared = new ArrayList<String>();
+        this.updateVerify = new ArrayList<String>();
+        this.updateOptional = new HashSet<OptionalFile>();
+        this.jvmArgs = new ArrayList<String>();
+        this.classPath = new ArrayList<String>();
+        this.clientArgs = new ArrayList<String>();
+        this.whitelist = new ArrayList<String>();
     }
-
+    
+    @Override
+    public int compareTo(final ClientProfile o) {
+        return Integer.compare(this.getSortIndex(), o.getSortIndex());
+    }
+    
     @LauncherAPI
     public String getAssetIndex() {
-        return assetIndex;
+        return this.assetIndex;
     }
-
+    
     @LauncherAPI
     public FileNameMatcher getAssetUpdateMatcher() {
-        return getVersion().compareTo(Version.MC1710) >= 0 ? ASSET_MATCHER : null;
+        return (this.getVersion().compareTo(Version.MC1710) >= 0) ? ClientProfile.ASSET_MATCHER : null;
     }
-
+    
     @LauncherAPI
     public String[] getClassPath() {
-        return classPath.toArray(new String[0]);
+        return this.classPath.toArray(new String[0]);
     }
-
+    
     @LauncherAPI
     public String[] getClientArgs() {
-        return clientArgs.toArray(new String[0]);
+        return this.clientArgs.toArray(new String[0]);
     }
-
+    
     @LauncherAPI
     public String getDir() {
-        return dir;
+        return this.dir;
     }
-
-    public void setDir(String dir) {
+    
+    public void setDir(final String dir) {
         this.dir = dir;
     }
-
+    
     @LauncherAPI
     public String getAssetDir() {
-        return assetDir;
+        return this.assetDir;
     }
-
+    
     @LauncherAPI
-    public FileNameMatcher getClientUpdateMatcher(/*boolean excludeOptional*/) {
-        String[] updateArray = update.toArray(new String[0]);
-        String[] verifyArray = updateVerify.toArray(new String[0]);
-        List<String> excludeList;
-        //if(excludeOptional)
-        //{
-        //    excludeList = new ArrayList<>();
-        //    excludeList.addAll(updateExclusions);
-        //    excludeList.addAll(updateOptional);
-        //}
-        //else
-        excludeList = updateExclusions;
-        String[] exclusionsArray = excludeList.toArray(new String[0]);
+    public FileNameMatcher getClientUpdateMatcher() {
+        final String[] updateArray = this.update.toArray(new String[0]);
+        final String[] verifyArray = this.updateVerify.toArray(new String[0]);
+        final List<String> excludeList = this.updateExclusions;
+        final String[] exclusionsArray = excludeList.toArray(new String[0]);
         return new FileNameMatcher(updateArray, verifyArray, exclusionsArray);
     }
-
+    
     @LauncherAPI
     public String[] getJvmArgs() {
-        return jvmArgs.toArray(new String[0]);
+        return this.jvmArgs.toArray(new String[0]);
     }
-
+    
     @LauncherAPI
     public String getMainClass() {
-        return mainClass;
+        return this.mainClass;
     }
-
+    
     @LauncherAPI
     public String getServerAddress() {
-        return serverAddress;
+        return this.serverAddress;
     }
-
+    
     @LauncherAPI
     public Set<OptionalFile> getOptional() {
-        return updateOptional;
+        return this.updateOptional;
     }
-
+    
     @LauncherAPI
     public void updateOptionalGraph() {
-        for (OptionalFile file : updateOptional) {
+        for (final OptionalFile file : this.updateOptional) {
             if (file.dependenciesFile != null) {
                 file.dependencies = new OptionalFile[file.dependenciesFile.length];
                 for (int i = 0; i < file.dependenciesFile.length; ++i) {
-                    file.dependencies[i] = getOptionalFile(file.dependenciesFile[i].name, file.dependenciesFile[i].type);
+                    file.dependencies[i] = this.getOptionalFile(file.dependenciesFile[i].name, file.dependenciesFile[i].type);
                 }
             }
             if (file.conflictFile != null) {
                 file.conflict = new OptionalFile[file.conflictFile.length];
                 for (int i = 0; i < file.conflictFile.length; ++i) {
-                    file.conflict[i] = getOptionalFile(file.conflictFile[i].name, file.conflictFile[i].type);
+                    file.conflict[i] = this.getOptionalFile(file.conflictFile[i].name, file.conflictFile[i].type);
                 }
             }
         }
     }
-
+    
     @LauncherAPI
-    public OptionalFile getOptionalFile(String file, OptionalType type) {
-        for (OptionalFile f : updateOptional)
-            if (f.type.equals(type) && f.name.equals(file)) return f;
+    public OptionalFile getOptionalFile(final String file, final OptionalType type) {
+        for (final OptionalFile f : this.updateOptional) {
+            if (f.type.equals(type) && f.name.equals(file)) {
+                return f;
+            }
+        }
         return null;
     }
-
+    
     @LauncherAPI
     public Collection<String> getShared() {
-        return updateShared;
+        return this.updateShared;
     }
-
+    
     @LauncherAPI
-    public void markOptional(String name, OptionalType type) {
-        OptionalFile file = getOptionalFile(name, type);
+    public void markOptional(final String name, final OptionalType type) {
+        final OptionalFile file = this.getOptionalFile(name, type);
         if (file == null) {
             throw new SecurityException(String.format("Optional %s not found in optionalList", name));
         }
-        markOptional(file);
+        this.markOptional(file);
     }
-
+    
     @LauncherAPI
-    public void markOptional(OptionalFile file) {
-
-        if (file.mark) return;
+    public void markOptional(final OptionalFile file) {
+        if (file.mark) {
+            return;
+        }
         file.mark = true;
         if (file.dependencies != null) {
-            for (OptionalFile dep : file.dependencies) {
-                if (dep.dependenciesCount == null) dep.dependenciesCount = new HashSet<>();
+            for (final OptionalFile dep : file.dependencies) {
+                if (dep.dependenciesCount == null) {
+                    dep.dependenciesCount = new HashSet<OptionalFile>();
+                }
                 dep.dependenciesCount.add(file);
-                markOptional(dep);
+                this.markOptional(dep);
             }
         }
         if (file.conflict != null) {
-            for (OptionalFile conflict : file.conflict) {
-                unmarkOptional(conflict);
+            for (final OptionalFile conflict : file.conflict) {
+                this.unmarkOptional(conflict);
             }
         }
     }
-
+    
     @LauncherAPI
-    public void unmarkOptional(String name, OptionalType type) {
-        OptionalFile file = getOptionalFile(name, type);
+    public void unmarkOptional(final String name, final OptionalType type) {
+        final OptionalFile file = this.getOptionalFile(name, type);
         if (file == null) {
             throw new SecurityException(String.format("Optional %s not found in optionalList", name));
         }
-        unmarkOptional(file);
+        this.unmarkOptional(file);
     }
-
+    
     @LauncherAPI
-    public void unmarkOptional(OptionalFile file) {
-        if (!file.mark) return;
+    public void unmarkOptional(final OptionalFile file) {
+        if (!file.mark) {
+            return;
+        }
         file.mark = false;
         if (file.dependenciesCount != null) {
-            for (OptionalFile f : file.dependenciesCount) {
-                unmarkOptional(f);
+            for (final OptionalFile f : file.dependenciesCount) {
+                this.unmarkOptional(f);
             }
             file.dependenciesCount.clear();
             file.dependenciesCount = null;
         }
         if (file.dependencies != null) {
-            for (OptionalFile f : file.dependencies) {
-                if (!f.mark) continue;
-                if (f.dependenciesCount == null) {
-                    unmarkOptional(f);
-                } else if (f.dependenciesCount.size() <= 1) {
-                    f.dependenciesCount.clear();
-                    f.dependenciesCount = null;
-                    unmarkOptional(f);
+            for (final OptionalFile f2 : file.dependencies) {
+                if (f2.mark) {
+                    if (f2.dependenciesCount == null) {
+                        this.unmarkOptional(f2);
+                    }
+                    else if (f2.dependenciesCount.size() <= 1) {
+                        f2.dependenciesCount.clear();
+                        f2.dependenciesCount = null;
+                        this.unmarkOptional(f2);
+                    }
                 }
             }
         }
     }
-
-    public void pushOptionalFile(HashedDir dir, boolean digest) {
-        for (OptionalFile opt : updateOptional) {
+    
+    public void pushOptionalFile(final HashedDir dir, final boolean digest) {
+        for (final OptionalFile opt : this.updateOptional) {
             if (opt.type.equals(OptionalType.FILE) && !opt.mark) {
-                for (String file : opt.list)
+                for (final String file : opt.list) {
                     dir.removeR(file);
+                }
             }
         }
     }
-
-    public void pushOptionalJvmArgs(Collection<String> jvmArgs1)
-    {
-        for (OptionalFile opt : updateOptional) {
+    
+    public void pushOptionalJvmArgs(final Collection<String> jvmArgs1) {
+        for (final OptionalFile opt : this.updateOptional) {
             if (opt.type.equals(OptionalType.JVMARGS) && opt.mark) {
                 jvmArgs1.addAll(Arrays.asList(opt.list));
             }
         }
     }
-    public void pushOptionalClientArgs(Collection<String> clientArgs1)
-    {
-        for (OptionalFile opt : updateOptional) {
+    
+    public void pushOptionalClientArgs(final Collection<String> clientArgs1) {
+        for (final OptionalFile opt : this.updateOptional) {
             if (opt.type.equals(OptionalType.CLIENTARGS) && opt.mark) {
                 clientArgs1.addAll(Arrays.asList(opt.list));
             }
         }
     }
-    public void pushOptionalClassPath(pushOptionalClassPathCallback callback) throws IOException
-    {
-        for (OptionalFile opt : updateOptional) {
+    
+    public void pushOptionalClassPath(final pushOptionalClassPathCallback callback) throws IOException {
+        for (final OptionalFile opt : this.updateOptional) {
             if (opt.type.equals(OptionalType.CLASSPATH) && opt.mark) {
                 callback.run(opt.list);
             }
         }
     }
-    @FunctionalInterface
-    public interface pushOptionalClassPathCallback
-    {
-        void run(String[] opt) throws IOException;
-    }
-
+    
     @LauncherAPI
     public int getServerPort() {
-        return serverPort;
+        return this.serverPort;
     }
-
+    
     @LauncherAPI
     public InetSocketAddress getServerSocketAddress() {
-        return InetSocketAddress.createUnresolved(getServerAddress(), getServerPort());
+        return InetSocketAddress.createUnresolved(this.getServerAddress(), this.getServerPort());
     }
-
+    
     @LauncherAPI
     public int getSortIndex() {
-        return sortIndex;
+        return this.sortIndex;
     }
-
+    
     @LauncherAPI
     public String getTitle() {
-        return title;
+        return this.title;
     }
-
+    
     @LauncherAPI
     public String getInfo() {
-        return info;
+        return this.info;
     }
-
+    
     @LauncherAPI
     public Version getVersion() {
-        return Version.byName(version);
+        return Version.byName(this.version);
     }
-
+    
     @LauncherAPI
     public boolean isUpdateFastCheck() {
-        return updateFastCheck;
+        return this.updateFastCheck;
     }
-
+    
     @LauncherAPI
-    public boolean isWhitelistContains(String username) {
-        if (!useWhitelist) return true;
-        return whitelist.stream().anyMatch(profileCaseSensitive ? e -> e.equals(username) : e -> e.equalsIgnoreCase(username));
+    public boolean isWhitelistContains(final String username) {
+        return !this.useWhitelist || this.whitelist.stream().anyMatch(ClientProfile.profileCaseSensitive ? (e -> e.equals(username)) : (e -> e.equalsIgnoreCase(username)));
     }
-
+    
     @LauncherAPI
-    public void setTitle(String title) {
+    public void setTitle(final String title) {
         this.title = title;
     }
-
+    
     @LauncherAPI
-    public void setInfo(String info) {
+    public void setInfo(final String info) {
         this.info = info;
     }
-
+    
     @LauncherAPI
-    public void setVersion(Version version) {
+    public void setVersion(final Version version) {
         this.version = version.name;
     }
-
+    
     @Override
     public String toString() {
-        return title;
+        return this.title;
     }
-
+    
     @LauncherAPI
     public void verify() {
-        // Version
-        getVersion();
-        IOHelper.verifyFileName(getAssetIndex());
-
-        // Client
-        VerifyHelper.verify(getTitle(), VerifyHelper.NOT_EMPTY, "Profile title can't be empty");
-        VerifyHelper.verify(getInfo(), VerifyHelper.NOT_EMPTY, "Profile info can't be empty");
-        VerifyHelper.verify(getServerAddress(), VerifyHelper.NOT_EMPTY, "Server address can't be empty");
-        VerifyHelper.verifyInt(getServerPort(), VerifyHelper.range(0, 65535), "Illegal server port: " + getServerPort());
-
-        // Client launcher
-        VerifyHelper.verify(getTitle(), VerifyHelper.NOT_EMPTY, "Main class can't be empty");
-        for(String s : classPath)
-        {
-            if(s == null) throw new IllegalArgumentException("Found null entry in classPath");
+        this.getVersion();
+        IOHelper.verifyFileName(this.getAssetIndex());
+        VerifyHelper.verify(this.getTitle(), VerifyHelper.NOT_EMPTY, "Profile title can't be empty");
+        VerifyHelper.verify(this.getInfo(), VerifyHelper.NOT_EMPTY, "Profile info can't be empty");
+        VerifyHelper.verify(this.getServerAddress(), VerifyHelper.NOT_EMPTY, "Server address can't be empty");
+        VerifyHelper.verifyInt(this.getServerPort(), VerifyHelper.range(0, 65535), "Illegal server port: " + this.getServerPort());
+        VerifyHelper.verify(this.getTitle(), VerifyHelper.NOT_EMPTY, "Main class can't be empty");
+        for (final String s : this.classPath) {
+            if (s == null) {
+                throw new IllegalArgumentException("Found null entry in classPath");
+            }
         }
-        for(String s : jvmArgs)
-        {
-            if(s == null) throw new IllegalArgumentException("Found null entry in jvmArgs");
+        for (final String s : this.jvmArgs) {
+            if (s == null) {
+                throw new IllegalArgumentException("Found null entry in jvmArgs");
+            }
         }
-        for(String s : clientArgs)
-        {
-            if(s == null) throw new IllegalArgumentException("Found null entry in clientArgs");
+        for (final String s : this.clientArgs) {
+            if (s == null) {
+                throw new IllegalArgumentException("Found null entry in clientArgs");
+            }
         }
-        for(OptionalFile f : updateOptional)
-        {
-            if(f == null) throw new IllegalArgumentException("Found null entry in updateOptional");
-            if(f.name == null) throw new IllegalArgumentException("Optional: name must not be null");
-            if(f.list == null) throw new IllegalArgumentException("Optional: list must not be null");
+        for (final OptionalFile f : this.updateOptional) {
+            if (f == null) {
+                throw new IllegalArgumentException("Found null entry in updateOptional");
+            }
+            if (f.name == null) {
+                throw new IllegalArgumentException("Optional: name must not be null");
+            }
+            if (f.list == null) {
+                throw new IllegalArgumentException("Optional: list must not be null");
+            }
         }
     }
-
+    
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((assetDir == null) ? 0 : assetDir.hashCode());
-        result = prime * result + ((assetIndex == null) ? 0 : assetIndex.hashCode());
-        result = prime * result + ((classPath == null) ? 0 : classPath.hashCode());
-        result = prime * result + ((clientArgs == null) ? 0 : clientArgs.hashCode());
-        result = prime * result + ((dir == null) ? 0 : dir.hashCode());
-        result = prime * result + ((jvmArgs == null) ? 0 : jvmArgs.hashCode());
-        result = prime * result + ((mainClass == null) ? 0 : mainClass.hashCode());
-        result = prime * result + ((serverAddress == null) ? 0 : serverAddress.hashCode());
-        result = prime * result + serverPort;
-        result = prime * result + sortIndex;
-        result = prime * result + ((title == null) ? 0 : title.hashCode());
-        result = prime * result + ((info == null) ? 0 : info.hashCode());
-        result = prime * result + ((update == null) ? 0 : update.hashCode());
-        result = prime * result + ((updateExclusions == null) ? 0 : updateExclusions.hashCode());
-        result = prime * result + (updateFastCheck ? 1231 : 1237);
-        result = prime * result + ((updateOptional == null) ? 0 : updateOptional.hashCode());
-        result = prime * result + ((updateShared == null) ? 0 : updateShared.hashCode());
-        result = prime * result + ((updateVerify == null) ? 0 : updateVerify.hashCode());
-        result = prime * result + (useWhitelist ? 1231 : 1237);
-        result = prime * result + ((version == null) ? 0 : version.hashCode());
-        result = prime * result + ((whitelist == null) ? 0 : whitelist.hashCode());
+        result = 31 * result + ((this.assetDir == null) ? 0 : this.assetDir.hashCode());
+        result = 31 * result + ((this.assetIndex == null) ? 0 : this.assetIndex.hashCode());
+        result = 31 * result + ((this.classPath == null) ? 0 : this.classPath.hashCode());
+        result = 31 * result + ((this.clientArgs == null) ? 0 : this.clientArgs.hashCode());
+        result = 31 * result + ((this.dir == null) ? 0 : this.dir.hashCode());
+        result = 31 * result + ((this.jvmArgs == null) ? 0 : this.jvmArgs.hashCode());
+        result = 31 * result + ((this.mainClass == null) ? 0 : this.mainClass.hashCode());
+        result = 31 * result + ((this.serverAddress == null) ? 0 : this.serverAddress.hashCode());
+        result = 31 * result + this.serverPort;
+        result = 31 * result + this.sortIndex;
+        result = 31 * result + ((this.title == null) ? 0 : this.title.hashCode());
+        result = 31 * result + ((this.info == null) ? 0 : this.info.hashCode());
+        result = 31 * result + ((this.update == null) ? 0 : this.update.hashCode());
+        result = 31 * result + ((this.updateExclusions == null) ? 0 : this.updateExclusions.hashCode());
+        result = 31 * result + (this.updateFastCheck ? 1231 : 1237);
+        result = 31 * result + ((this.updateOptional == null) ? 0 : this.updateOptional.hashCode());
+        result = 31 * result + ((this.updateShared == null) ? 0 : this.updateShared.hashCode());
+        result = 31 * result + ((this.updateVerify == null) ? 0 : this.updateVerify.hashCode());
+        result = 31 * result + (this.useWhitelist ? 1231 : 1237);
+        result = 31 * result + ((this.version == null) ? 0 : this.version.hashCode());
+        result = 31 * result + ((this.whitelist == null) ? 0 : this.whitelist.hashCode());
         return result;
     }
-
+    
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (this.getClass() != obj.getClass()) {
             return false;
-        ClientProfile other = (ClientProfile) obj;
-        if (assetDir == null) {
-            if (other.assetDir != null)
+        }
+        final ClientProfile other = (ClientProfile)obj;
+        if (this.assetDir == null) {
+            if (other.assetDir != null) {
                 return false;
-        } else if (!assetDir.equals(other.assetDir))
+            }
+        }
+        else if (!this.assetDir.equals(other.assetDir)) {
             return false;
-        if (assetIndex == null) {
-            if (other.assetIndex != null)
+        }
+        if (this.assetIndex == null) {
+            if (other.assetIndex != null) {
                 return false;
-        } else if (!assetIndex.equals(other.assetIndex))
+            }
+        }
+        else if (!this.assetIndex.equals(other.assetIndex)) {
             return false;
-        if (classPath == null) {
-            if (other.classPath != null)
+        }
+        if (this.classPath == null) {
+            if (other.classPath != null) {
                 return false;
-        } else if (!classPath.equals(other.classPath))
+            }
+        }
+        else if (!this.classPath.equals(other.classPath)) {
             return false;
-        if (clientArgs == null) {
-            if (other.clientArgs != null)
+        }
+        if (this.clientArgs == null) {
+            if (other.clientArgs != null) {
                 return false;
-        } else if (!clientArgs.equals(other.clientArgs))
+            }
+        }
+        else if (!this.clientArgs.equals(other.clientArgs)) {
             return false;
-        if (dir == null) {
-            if (other.dir != null)
+        }
+        if (this.dir == null) {
+            if (other.dir != null) {
                 return false;
-        } else if (!dir.equals(other.dir))
+            }
+        }
+        else if (!this.dir.equals(other.dir)) {
             return false;
-        if (jvmArgs == null) {
-            if (other.jvmArgs != null)
+        }
+        if (this.jvmArgs == null) {
+            if (other.jvmArgs != null) {
                 return false;
-        } else if (!jvmArgs.equals(other.jvmArgs))
+            }
+        }
+        else if (!this.jvmArgs.equals(other.jvmArgs)) {
             return false;
-        if (mainClass == null) {
-            if (other.mainClass != null)
+        }
+        if (this.mainClass == null) {
+            if (other.mainClass != null) {
                 return false;
-        } else if (!mainClass.equals(other.mainClass))
+            }
+        }
+        else if (!this.mainClass.equals(other.mainClass)) {
             return false;
-        if (serverAddress == null) {
-            if (other.serverAddress != null)
+        }
+        if (this.serverAddress == null) {
+            if (other.serverAddress != null) {
                 return false;
-        } else if (!serverAddress.equals(other.serverAddress))
+            }
+        }
+        else if (!this.serverAddress.equals(other.serverAddress)) {
             return false;
-        if (serverPort != other.serverPort)
+        }
+        if (this.serverPort != other.serverPort) {
             return false;
-        if (sortIndex != other.sortIndex)
+        }
+        if (this.sortIndex != other.sortIndex) {
             return false;
-        if (title == null) {
-            if (other.title != null)
+        }
+        if (this.title == null) {
+            if (other.title != null) {
                 return false;
-        } else if (!title.equals(other.title))
+            }
+        }
+        else if (!this.title.equals(other.title)) {
             return false;
-        if (info == null) {
-            if (other.info != null)
+        }
+        if (this.info == null) {
+            if (other.info != null) {
                 return false;
-        } else if (!info.equals(other.info))
+            }
+        }
+        else if (!this.info.equals(other.info)) {
             return false;
-        if (update == null) {
-            if (other.update != null)
+        }
+        if (this.update == null) {
+            if (other.update != null) {
                 return false;
-        } else if (!update.equals(other.update))
+            }
+        }
+        else if (!this.update.equals(other.update)) {
             return false;
-        if (updateExclusions == null) {
-            if (other.updateExclusions != null)
+        }
+        if (this.updateExclusions == null) {
+            if (other.updateExclusions != null) {
                 return false;
-        } else if (!updateExclusions.equals(other.updateExclusions))
+            }
+        }
+        else if (!this.updateExclusions.equals(other.updateExclusions)) {
             return false;
-        if (updateFastCheck != other.updateFastCheck)
+        }
+        if (this.updateFastCheck != other.updateFastCheck) {
             return false;
-        if (updateOptional == null) {
-            if (other.updateOptional != null)
+        }
+        if (this.updateOptional == null) {
+            if (other.updateOptional != null) {
                 return false;
-        } else if (!updateOptional.equals(other.updateOptional))
+            }
+        }
+        else if (!this.updateOptional.equals(other.updateOptional)) {
             return false;
-        if (updateShared == null) {
-            if (other.updateShared != null)
+        }
+        if (this.updateShared == null) {
+            if (other.updateShared != null) {
                 return false;
-        } else if (!updateShared.equals(other.updateShared))
+            }
+        }
+        else if (!this.updateShared.equals(other.updateShared)) {
             return false;
-        if (updateVerify == null) {
-            if (other.updateVerify != null)
+        }
+        if (this.updateVerify == null) {
+            if (other.updateVerify != null) {
                 return false;
-        } else if (!updateVerify.equals(other.updateVerify))
+            }
+        }
+        else if (!this.updateVerify.equals(other.updateVerify)) {
             return false;
-        if (useWhitelist != other.useWhitelist)
+        }
+        if (this.useWhitelist != other.useWhitelist) {
             return false;
-        if (version == null) {
-            if (other.version != null)
+        }
+        if (this.version == null) {
+            if (other.version != null) {
                 return false;
-        } else if (!version.equals(other.version))
+            }
+        }
+        else if (!this.version.equals(other.version)) {
             return false;
-        if (whitelist == null) {
+        }
+        if (this.whitelist == null) {
             return other.whitelist == null;
-        } else return whitelist.equals(other.whitelist);
+        }
+        return this.whitelist.equals(other.whitelist);
+    }
+    
+    static {
+        profileCaseSensitive = Boolean.getBoolean("launcher.clientProfile.caseSensitive");
+        ASSET_MATCHER = new FileNameMatcher(new String[0], new String[] { "indexes", "objects" }, new String[0]);
+    }
+    
+    @LauncherAPI
+    public enum Version
+    {
+        MC147("1.4.7", 51), 
+        MC152("1.5.2", 61), 
+        MC164("1.6.4", 78), 
+        MC172("1.7.2", 4), 
+        MC1710("1.7.10", 5), 
+        MC189("1.8.9", 47), 
+        MC194("1.9.4", 110), 
+        MC1102("1.10.2", 210), 
+        MC1112("1.11.2", 316), 
+        MC1122("1.12.2", 340), 
+        MC113("1.13", 393), 
+        MC1131("1.13.1", 401), 
+        MC1132("1.13.2", 402);
+        
+        private static final Map<String, Version> VERSIONS;
+        public final String name;
+        public final int protocol;
+        
+        public static Version byName(final String name) {
+            return VerifyHelper.getMapValue(Version.VERSIONS, name, String.format("Unknown client version: '%s'", name));
+        }
+        
+        private Version(final String name, final int protocol) {
+            this.name = name;
+            this.protocol = protocol;
+        }
+        
+        @Override
+        public String toString() {
+            return "Minecraft " + this.name;
+        }
+        
+        static {
+            final Version[] versionsValues = values();
+            VERSIONS = new HashMap<String, Version>(versionsValues.length);
+            for (final Version version : versionsValues) {
+                Version.VERSIONS.put(version.name, version);
+            }
+        }
+    }
+    
+    @FunctionalInterface
+    public interface pushOptionalClassPathCallback
+    {
+        void run(final String[] p0) throws IOException;
     }
 }

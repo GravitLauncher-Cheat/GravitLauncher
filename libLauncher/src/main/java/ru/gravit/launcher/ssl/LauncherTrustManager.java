@@ -1,15 +1,20 @@
 package ru.gravit.launcher.ssl;
 
+import java.security.cert.X509Certificate;
 import javax.net.ssl.X509TrustManager;
 
-public class LauncherTrustManager implements X509TrustManager {
-    public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+public class LauncherTrustManager implements X509TrustManager
+{
+    @Override
+    public void checkClientTrusted(final X509Certificate[] certs, final String authType) {
     }
-
-    public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+    
+    @Override
+    public void checkServerTrusted(final X509Certificate[] certs, final String authType) {
     }
-
-    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+    
+    @Override
+    public X509Certificate[] getAcceptedIssuers() {
         return null;
     }
 }
