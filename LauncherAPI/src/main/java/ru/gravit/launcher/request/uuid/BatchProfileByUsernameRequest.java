@@ -1,56 +1,57 @@
+// 
+// Decompiled by Procyon v0.5.36
+// 
+
 package ru.gravit.launcher.request.uuid;
 
+import ru.gravit.launcher.profiles.PlayerProfile;
+import ru.gravit.launcher.serialize.HOutput;
+import ru.gravit.launcher.serialize.HInput;
+import ru.gravit.launcher.request.RequestType;
+import java.io.IOException;
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.events.request.BatchProfileByUsernameRequestEvent;
-import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.RequestType;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.SerializeLimits;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 
-import java.io.IOException;
-
-public final class BatchProfileByUsernameRequest extends Request<BatchProfileByUsernameRequestEvent> {
+public final class BatchProfileByUsernameRequest extends Request<BatchProfileByUsernameRequestEvent>
+{
     private final String[] usernames;
-
+    
     @LauncherAPI
-    public BatchProfileByUsernameRequest(LauncherConfig config, String... usernames) throws IOException {
+    public BatchProfileByUsernameRequest(final LauncherConfig config, final String... usernames) throws IOException {
         super(config);
         this.usernames = usernames.clone();
-        IOHelper.verifyLength(this.usernames.length, SerializeLimits.MAX_BATCH_SIZE);
-        for (String username : this.usernames)
+        IOHelper.verifyLength(this.usernames.length, 128);
+        for (final String username : this.usernames) {
             VerifyHelper.verifyUsername(username);
+        }
     }
-
+    
     @LauncherAPI
-    public BatchProfileByUsernameRequest(String... usernames) throws IOException {
-        this(null, usernames);
+    public BatchProfileByUsernameRequest(final String... usernames) throws IOException {
+        this((LauncherConfig)null, usernames);
     }
-
+    
     @Override
     public Integer getLegacyType() {
         return RequestType.BATCH_PROFILE_BY_USERNAME.getNumber();
     }
-
+    
     @Override
-    protected BatchProfileByUsernameRequestEvent requestDo(HInput input, HOutput output) throws IOException {
-        output.writeLength(usernames.length, SerializeLimits.MAX_BATCH_SIZE);
-        for (String username : usernames) {
-            output.writeString(username, SerializeLimits.MAX_LOGIN);
-            output.writeString("", SerializeLimits.MAX_CLIENT);
+    protected BatchProfileByUsernameRequestEvent requestDo(final HInput input, final HOutput output) throws IOException {
+        output.writeLength(this.usernames.length, 128);
+        for (final String username : this.usernames) {
+            output.writeString(username, 1024);
+            output.writeString("", 128);
         }
         output.flush();
-
-        // Read profiles response
-        PlayerProfile[] profiles = new PlayerProfile[usernames.length];
-        for (int i = 0; i < profiles.length; i++)
-            profiles[i] = input.readBoolean() ? new PlayerProfile(input) : null;
-
-        // Return result
+        final PlayerProfile[] profiles = new PlayerProfile[this.usernames.length];
+        for (int i = 0; i < profiles.length; ++i) {
+            profiles[i] = (input.readBoolean() ? new PlayerProfile(input) : null);
+        }
         return new BatchProfileByUsernameRequestEvent(profiles);
     }
 }
