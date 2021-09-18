@@ -48,7 +48,7 @@ public class OshiHWIDProvider implements LauncherHWIDInterface
     public String getSerial() {
         try {
             if (this.hardware == null) {
-                this.systemInfo.getHardware()
+                this.systemInfo.getHardware();
             }
             return this.hardware.getComputerSystem().getSerialNumber();
         }
@@ -61,7 +61,7 @@ public class OshiHWIDProvider implements LauncherHWIDInterface
     public String getProcessorID() {
         try {
             if (this.hardware == null) {
-                 this.systemInfo.getHardware()
+                 this.systemInfo.getHardware();
             }
             return this.hardware.getProcessor().getProcessorID();
         }
@@ -74,7 +74,7 @@ public class OshiHWIDProvider implements LauncherHWIDInterface
     public String getHWDisk() {
         try {
             if (this.hardware == null) {
-                 this.systemInfo.getHardware()
+                 this.systemInfo.getHardware();
             }
             HWDiskStore store = null;
             long size = 0L;
