@@ -1,9 +1,14 @@
 package ru.gravit.launcher.managers;
 
-public class HasherManager {
-    public static final HasherStore defaultStore = new HasherStore();
-
+public class HasherManager
+{
+    public static final HasherStore defaultStore;
+    
     public static HasherStore getDefaultStore() {
-        return defaultStore;
+        return HasherManager.defaultStore;
+    }
+    
+    static {
+        defaultStore = new HasherStore();
     }
 }
