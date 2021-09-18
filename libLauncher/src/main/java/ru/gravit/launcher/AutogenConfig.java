@@ -47,7 +47,7 @@ public class AutogenConfig
             obj.put("address", "mc.dreamfinity.org");
             obj.put("port", 7240);
             obj.put("clientPort", 32288);
-            obj.put("secretKeyClient", "a4fa3a868aa31b1c");
+            obj.put("secretKeyClient", "04e51b63006856bb");
             obj.put("env", 3);
             try {
                 file = new FileWriter("./config.json");
