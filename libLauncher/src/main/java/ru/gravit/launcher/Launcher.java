@@ -73,7 +73,7 @@ public final class Launcher {
             try (HInput input = new HInput(IOHelper.newInput(IOHelper.getResourceURL(CONFIG_FILE)))) {
                 config = new LauncherConfig(input);
             } catch (IOException | InvalidKeySpecException e) {
-                //throw new SecurityException(e);
+                throw new SecurityException(e);
             }
             CONFIG.set(config);
         }
