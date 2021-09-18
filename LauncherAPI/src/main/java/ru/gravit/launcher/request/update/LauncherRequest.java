@@ -77,7 +77,7 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     public LauncherRequest(final LauncherConfig config) {
         super(config);
         this.launcher_type = (LauncherRequest.EXE_BINARY ? 2 : 1);
-        final Path launcherPath = IOHelper.getCodeSource(Launcher.class).getParent().resolve("Dreamfinity.jar");
+        final Path launcherPath = IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar");
         try {
             this.digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, launcherPath);
         }
@@ -113,7 +113,7 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     }
     
     static {
-        BINARY_PATH = IOHelper.getCodeSource(Launcher.class).getParent().resolve("Dreamfinity.jar");
+        BINARY_PATH = IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar");
         EXE_BINARY = IOHelper.hasExtension(LauncherRequest.BINARY_PATH, "exe");
     }
 }
