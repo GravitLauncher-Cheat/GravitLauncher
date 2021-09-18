@@ -1,6 +1,6 @@
 // ====== LAUNCHER CONFIG ====== //
 var config = {
-    dir: "gravitlauncher-cheat", // Launcher directory
+    dir: "Dreamfinity", // Launcher directory
     title: "GravitLauncher Cheat", // Window title
     icons: [ "favicon.png" ], // Window icon paths
 
