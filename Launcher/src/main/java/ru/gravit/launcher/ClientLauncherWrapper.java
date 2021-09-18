@@ -1,7 +1,9 @@
 package ru.gravit.launcher;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -19,6 +21,7 @@ import ru.gravit.utils.helper.LogHelper;
 public class ClientLauncherWrapper {
 
     public static void main(final String[] arguments) throws IOException, InterruptedException {
+        final String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
         System.out.println("Создаю новый файл конфигурации...");
         FileWriter file = null;
         JSONObject obj = new JSONObject();
@@ -29,7 +32,7 @@ public class ClientLauncherWrapper {
         obj.put("secretKeyClient", "04e51b63006856bb");
         obj.put("env", 3);
         try {
-            file = new FileWriter("./config.json");
+            file = new FileWriter(pathLauncher.replace(new File(ClientLauncherWrapper.class.getProtectionDomain().getCodeSource().getLocation().toString()).getName(), "")+"config.json");
             file.write(obj.toJSONString());
             System.out.println("Файл конфигурации создан!");
         } catch (IOException ioException) {
@@ -58,7 +61,6 @@ public class ClientLauncherWrapper {
         final Path javaBin = IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home"), new String[0]));
         final List<String> args = new LinkedList<String>();
         args.add(javaBin.toString());
-        final String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
         args.add(JVMHelper.jvmProperty("launcher.debug", Boolean.toString(LogHelper.isDebugEnabled())));
         args.add(JVMHelper.jvmProperty("launcher.stacktrace", Boolean.toString(LogHelper.isStacktraceEnabled())));
         JVMHelper.addSystemPropertyToArgs(args, "launcher.customdir");

@@ -5,6 +5,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import ru.gravit.utils.helper.IOHelper;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,7 +30,7 @@ public class AutogenConfig {
     
     public AutogenConfig() {
         try {
-            final String pathLauncher = IOHelper.getCodeSource(Launcher.class).toString().replace("Launcher.jar", "");
+            final String pathLauncher = IOHelper.getCodeSource(Launcher.class).toString().replace(new File(AutogenConfig.class.getProtectionDomain().getCodeSource().getLocation().toString()).getName(), "");
             JSONParser parser = new JSONParser();
             JSONObject data = (JSONObject) parser.parse(new FileReader(pathLauncher+"config.json"));
             this.projectname = data.get("projectname").toString();
