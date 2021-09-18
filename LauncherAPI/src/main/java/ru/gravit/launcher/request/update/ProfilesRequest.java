@@ -48,8 +48,7 @@ public final class ProfilesRequest extends Request<ProfilesRequestEvent> impleme
         final List<ClientProfile> profiles = new ArrayList<ClientProfile>(count);
         for (int i = 0; i < count; ++i) {
             final String prof = input.readString(0);
-            JsonReader reader = new JsonReader(new FileReader("profiles.txt"));
-            profiles.add(Launcher.gson.fromJson(reader, ClientProfile.class));
+            profiles.add(Launcher.gson.fromJson(prof, ClientProfile.class));
         }
         return new ProfilesRequestEvent(profiles);
     }
