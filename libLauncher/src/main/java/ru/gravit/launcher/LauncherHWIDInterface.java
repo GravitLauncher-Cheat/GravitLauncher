@@ -1,6 +1,7 @@
 package ru.gravit.launcher;
 
 @FunctionalInterface
-public interface LauncherHWIDInterface {
+public interface LauncherHWIDInterface
+{
     HWID getHWID();
 }
