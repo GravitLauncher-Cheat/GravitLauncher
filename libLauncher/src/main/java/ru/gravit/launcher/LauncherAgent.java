@@ -1,32 +1,36 @@
 package ru.gravit.launcher;
 
-import ru.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
 import java.util.jar.JarFile;
+import ru.gravit.utils.helper.LogHelper;
+import java.lang.instrument.Instrumentation;
 
 @LauncherAPI
-public final class LauncherAgent {
-    private static boolean isAgentStarted = false;
+public final class LauncherAgent
+{
+    private static boolean isAgentStarted;
     public static Instrumentation inst;
-
-    public static void addJVMClassPath(String path) throws IOException {
+    
+    public static void addJVMClassPath(final String path) throws IOException {
         LogHelper.debug("Launcher Agent addJVMClassPath");
-        inst.appendToSystemClassLoaderSearch(new JarFile(path));
+        LauncherAgent.inst.appendToSystemClassLoaderSearch(new JarFile(path));
     }
-
+    
     public boolean isAgentStarted() {
-        return isAgentStarted;
+        return LauncherAgent.isAgentStarted;
     }
-
-    public static void premain(String agentArgument, Instrumentation instrumentation) {
+    
+    public static void premain(final String agentArgument, final Instrumentation instrumentation) {
         System.out.println("Launcher Agent");
-        inst = instrumentation;
-        isAgentStarted = true;
+        LauncherAgent.inst = instrumentation;
+        LauncherAgent.isAgentStarted = true;
     }
-
+    
     public static boolean isStarted() {
-        return isAgentStarted;
+        return LauncherAgent.isAgentStarted;
+    }
+    
+    static {
+        LauncherAgent.isAgentStarted = false;
     }
 }
