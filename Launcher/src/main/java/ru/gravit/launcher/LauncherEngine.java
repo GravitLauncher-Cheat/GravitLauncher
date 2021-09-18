@@ -1,78 +1,73 @@
 package ru.gravit.launcher;
 
-import com.google.gson.GsonBuilder;
-import ru.gravit.launcher.client.ClientModuleManager;
 import ru.gravit.launcher.client.DirBridge;
+import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.launcher.client.FunctionalBridge;
+import java.util.Objects;
 import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
-import ru.gravit.launcher.gui.RuntimeProvider;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.EnvHelper;
-import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.launcher.client.ClientModuleManager;
+import com.google.gson.GsonBuilder;
 import ru.gravit.utils.helper.LogHelper;
-
-import java.util.Objects;
+import ru.gravit.launcher.gui.RuntimeProvider;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class LauncherEngine {
-
-    public static void main(String... args) throws Throwable {
-        JVMHelper.checkStackTrace(LauncherEngine.class);
-        JVMHelper.verifySystemProperties(Launcher.class, true);
-        EnvHelper.checkDangerousParams();
-        //if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
+public class LauncherEngine
+{
+    private final AtomicBoolean started;
+    public RuntimeProvider runtimeProvider;
+    
+    public static void main(final String... args) throws Throwable {
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
-        // Start Launcher
         initGson();
         LogHelper.setStacktraceEnabled(true);
-        long startTime = System.currentTimeMillis();
+        final long startTime = System.currentTimeMillis();
         try {
             new LauncherEngine().start(args);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             LogHelper.error(e);
             return;
         }
-        long endTime = System.currentTimeMillis();
+        final long endTime = System.currentTimeMillis();
         LogHelper.debug("Launcher started in %dms", endTime - startTime);
     }
-
+    
     public static void initGson() {
-        if (Launcher.gson != null) return;
+        if (Launcher.gson != null) {
+            return;
+        }
         Launcher.gsonBuilder = new GsonBuilder();
         Launcher.gson = Launcher.gsonBuilder.create();
     }
-
-    // Instance
-    private final AtomicBoolean started = new AtomicBoolean(false);
-    public RuntimeProvider runtimeProvider;
-
+    
     private LauncherEngine() {
-
+        this.started = new AtomicBoolean(false);
     }
-
-
+    
     @LauncherAPI
-    public void start(String... args) throws Throwable {
+    public void start(final String... args) throws Throwable {
         Launcher.modulesManager = new ClientModuleManager(this);
         LauncherConfig.getAutogenConfig().initModules();
         Launcher.modulesManager.preInitModules();
-        if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
-        runtimeProvider.init(false);
-        runtimeProvider.preLoad();
+        if (this.runtimeProvider == null) {
+            this.runtimeProvider = new JSRuntimeProvider();
+        }
+        this.runtimeProvider.init(false);
+        this.runtimeProvider.preLoad();
         LauncherGuardManager.initGuard(false);
         Objects.requireNonNull(args, "args");
-        if (started.getAndSet(true))
+        if (this.started.getAndSet(true)) {
             throw new IllegalStateException("Launcher has been already started");
+        }
         Launcher.modulesManager.initModules();
-        runtimeProvider.preLoad();
-        FunctionalBridge.getHWID = CommonHelper.newThread("GetHWID Thread", true, FunctionalBridge::getHWID);
-        FunctionalBridge.getHWID.start();
+        this.runtimeProvider.preLoad();
+        (FunctionalBridge.getHWID = CommonHelper.newThread("GetHWID Thread", true, FunctionalBridge::getHWID)).start();
         LogHelper.debug("Dir: %s", DirBridge.dir);
-        runtimeProvider.run(args);
+        this.runtimeProvider.run(args);
     }
-
+    
     public static LauncherEngine clientInstance() {
         return new LauncherEngine();
     }
