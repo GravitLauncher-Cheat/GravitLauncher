@@ -1,77 +1,99 @@
 package ru.gravit.launcher;
 
-import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-
 import java.io.IOException;
+import ru.gravit.launcher.serialize.HInput;
 
-public class ClientPermissions {
-    public static final ClientPermissions DEFAULT = new ClientPermissions();
+public class ClientPermissions
+{
+    public static final ClientPermissions DEFAULT;
     @LauncherAPI
-    public boolean canAdmin = false;
+    public boolean canAdmin;
     @LauncherAPI
-    public boolean canServer = false;
+    public boolean canServer;
     @LauncherAPI
-    public boolean canUSR1 = false;
+    public boolean canUSR1;
     @LauncherAPI
-    public boolean canUSR2 = false;
+    public boolean canUSR2;
     @LauncherAPI
-    public boolean canUSR3 = false;
+    public boolean canUSR3;
     @LauncherAPI
-    public boolean canBot = false;
-
-    public ClientPermissions(HInput input) throws IOException {
-        canAdmin = input.readBoolean();
-        canServer = input.readBoolean();
-        canUSR1 = input.readBoolean();
-        canUSR2 = input.readBoolean();
-        canUSR3 = input.readBoolean();
-        canBot = input.readBoolean();
+    public boolean canBot;
+    
+    public ClientPermissions(final HInput input) throws IOException {
+        this.canAdmin = false;
+        this.canServer = false;
+        this.canUSR1 = false;
+        this.canUSR2 = false;
+        this.canUSR3 = false;
+        this.canBot = false;
+        this.canAdmin = input.readBoolean();
+        this.canServer = input.readBoolean();
+        this.canUSR1 = input.readBoolean();
+        this.canUSR2 = input.readBoolean();
+        this.canUSR3 = input.readBoolean();
+        this.canBot = input.readBoolean();
     }
-
+    
     public ClientPermissions() {
-        canAdmin = false;
-        canServer = false;
-        canUSR1 = false;
-        canUSR2 = false;
-        canUSR3 = false;
-        canBot = false;
+        this.canAdmin = false;
+        this.canServer = false;
+        this.canUSR1 = false;
+        this.canUSR2 = false;
+        this.canUSR3 = false;
+        this.canBot = false;
+        this.canAdmin = false;
+        this.canServer = false;
+        this.canUSR1 = false;
+        this.canUSR2 = false;
+        this.canUSR3 = false;
+        this.canBot = false;
     }
-
-    public ClientPermissions(long data) {
-        canAdmin = (data & (1)) != 0;
-        canServer = (data & (1 << 1)) != 0;
-        canUSR1 = (data & (1 << 2)) != 0;
-        canUSR2 = (data & (1 << 3)) != 0;
-        canUSR3 = (data & (1 << 4)) != 0;
-        canBot = (data & (1 << 5)) != 0;
+    
+    public ClientPermissions(final long data) {
+        this.canAdmin = false;
+        this.canServer = false;
+        this.canUSR1 = false;
+        this.canUSR2 = false;
+        this.canUSR3 = false;
+        this.canBot = false;
+        this.canAdmin = ((data & 0x1L) != 0x0L);
+        this.canServer = ((data & 0x2L) != 0x0L);
+        this.canUSR1 = ((data & 0x4L) != 0x0L);
+        this.canUSR2 = ((data & 0x8L) != 0x0L);
+        this.canUSR3 = ((data & 0x10L) != 0x0L);
+        this.canBot = ((data & 0x20L) != 0x0L);
     }
+    
     @LauncherAPI
-    public long toLong()
-    {
-        long result = 0;
-        result |= canAdmin ? 0 : 1;
-        result |= canServer ? 0 : (1 << 1);
-        result |= canUSR1 ? 0 : (1 << 2);
-        result |= canUSR2 ? 0 : (1 << 3);
-        result |= canUSR3 ? 0 : (1 << 4);
-        result |= canBot ? 0 : (1 << 5);
+    public long toLong() {
+        long result = 0L;
+        result |= (this.canAdmin ? 0 : 1);
+        result |= (this.canServer ? 0L : 2L);
+        result |= (this.canUSR1 ? 0L : 4L);
+        result |= (this.canUSR2 ? 0L : 8L);
+        result |= (this.canUSR3 ? 0L : 16L);
+        result |= (this.canBot ? 0L : 32L);
         return result;
     }
-
+    
     public static ClientPermissions getSuperuserAccount() {
-        ClientPermissions perm = new ClientPermissions();
+        final ClientPermissions perm = new ClientPermissions();
         perm.canServer = true;
         perm.canAdmin = true;
         return perm;
     }
-
-    public void write(HOutput output) throws IOException {
-        output.writeBoolean(canAdmin);
-        output.writeBoolean(canServer);
-        output.writeBoolean(canUSR1);
-        output.writeBoolean(canUSR2);
-        output.writeBoolean(canUSR3);
-        output.writeBoolean(canBot);
+    
+    public void write(final HOutput output) throws IOException {
+        output.writeBoolean(this.canAdmin);
+        output.writeBoolean(this.canServer);
+        output.writeBoolean(this.canUSR1);
+        output.writeBoolean(this.canUSR2);
+        output.writeBoolean(this.canUSR3);
+        output.writeBoolean(this.canBot);
+    }
+    
+    static {
+        DEFAULT = new ClientPermissions();
     }
 }
