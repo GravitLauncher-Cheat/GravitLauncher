@@ -42,7 +42,7 @@ public final class ProfilesRequest extends Request<ProfilesRequestEvent> impleme
     protected ProfilesRequestEvent requestDo(final HInput input, final HOutput output) throws Exception {
         output.writeBoolean(true);
         output.flush();
-        this.readError(input);
+        //this.readError(input);
         final int count = input.readLength(0);
         final List<ClientProfile> profiles = new ArrayList<ClientProfile>(count);
         for (int i = 0; i < count; ++i) {
