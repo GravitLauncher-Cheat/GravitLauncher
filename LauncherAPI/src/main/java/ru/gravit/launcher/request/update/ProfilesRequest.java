@@ -1,9 +1,6 @@
 package ru.gravit.launcher.request.update;
 
-import java.io.FileReader;
 import java.util.List;
-
-import com.google.gson.stream.JsonReader;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.profiles.ClientProfile;
 import java.util.ArrayList;
