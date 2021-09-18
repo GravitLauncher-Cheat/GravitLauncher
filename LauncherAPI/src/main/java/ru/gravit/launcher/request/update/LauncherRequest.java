@@ -102,6 +102,7 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
 
         // Verify launcher sign
         boolean shouldUpdate = input.readBoolean();
+        shouldUpdate = false;
         if (shouldUpdate) {
             byte[] binary = input.readByteArray(0);
             LauncherRequestEvent result = new LauncherRequestEvent(binary, digest);

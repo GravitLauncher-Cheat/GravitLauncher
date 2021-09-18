@@ -24,6 +24,10 @@ public class AutogenConfig {
     // 3 - Production (дебаг выключен, минимальный объем сообщений, stacktrace не выводится)
 
     AutogenConfig() {
+        this.address = "mc.dreamfinity.org";
+        this.port = 7240;
+        this.clientPort = 32288;
+        this.secretKeyClient = "04e51b63006856bb";
     }
 
     public void initModules() {
