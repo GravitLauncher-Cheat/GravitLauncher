@@ -42,13 +42,14 @@ public final class ProfilesRequest extends Request<ProfilesRequestEvent> impleme
     protected ProfilesRequestEvent requestDo(HInput input, HOutput output) throws Exception {
         output.writeBoolean(true);
         output.flush();
-        readError(input);
+        //readError(input);
 
-        int count = input.readLength(0);
+        int count = 4242;
+        //  input.readLength(0)
         List<ClientProfile> profiles = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             String prof = input.readString(0);
-            profiles.add(Launcher.gson.fromJson(prof, ClientProfile.class));
+            //profiles.add(Launcher.gson.fromJson(prof, ClientProfile.class));
         }
         // Return request result
         return new ProfilesRequestEvent(profiles);
