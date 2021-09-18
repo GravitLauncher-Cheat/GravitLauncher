@@ -1,7 +1,7 @@
 // ====== LAUNCHER CONFIG ====== //
 var config = {
-    dir: "Dreamfinity", // Launcher directory
-    title: "GravitLauncher", // Window title
+    dir: "gravitlauncher-cheat", // Launcher directory
+    title: "GravitLauncher Cheat", // Window title
     icons: [ "favicon.png" ], // Window icon paths
 
     // Auth config
@@ -9,7 +9,7 @@ var config = {
     linkURL: new java.net.URL("http://dima-dencep.ml"), // URL for link under "Auth" button
 	
     // Menu config
-    discord_url: new java.net.URL("http://discord.com"),
+    discord_url: new java.net.URL("https://discord.gg/b9QG4ygY75"),
 
     // Settings defaults
     settingsMagic: 0xC0DE5, // Ancient magic, don't touch
