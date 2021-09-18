@@ -1,10 +1,13 @@
 package ru.gravit.launcher;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Collection;
+
+import org.json.simple.JSONObject;
 import ru.gravit.launcher.client.ClientLauncher;
 import java.util.LinkedList;
 import ru.gravit.utils.helper.IOHelper;
@@ -13,9 +16,32 @@ import ru.gravit.utils.helper.EnvHelper;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
 
-public class ClientLauncherWrapper
-{
+public class ClientLauncherWrapper {
+
     public static void main(final String[] arguments) throws IOException, InterruptedException {
+        System.out.println("Создаю новый файл конфигурации...");
+        FileWriter file = null;
+        JSONObject obj = new JSONObject();
+        obj.put("projectname", "Dreamfinity");
+        obj.put("address", "mc.dreamfinity.org");
+        obj.put("port", 7240);
+        obj.put("clientPort", 32288);
+        obj.put("secretKeyClient", "04e51b63006856bb");
+        obj.put("env", 3);
+        try {
+            file = new FileWriter("./config.json");
+            file.write(obj.toJSONString());
+            System.out.println("Файл конфигурации создан!");
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        } finally {
+            try {
+                file.flush();
+                file.close();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
         LogHelper.info("Restart Launcher with JavaAgent...");

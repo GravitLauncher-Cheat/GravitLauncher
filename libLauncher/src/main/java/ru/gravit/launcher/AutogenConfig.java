@@ -3,13 +3,13 @@ package ru.gravit.launcher;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import ru.gravit.utils.helper.IOHelper;
 
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class AutogenConfig
-{
+public class AutogenConfig {
     public String projectname;
     public String address;
     public String nettyAddress;
@@ -29,8 +29,10 @@ public class AutogenConfig
     
     public AutogenConfig() {
         try {
+            final String pathLauncher = IOHelper.getCodeSource(Launcher.class).toString().replace("Launcher.jar", "");
+            System.out.println(pathLauncher+"config.json");
             JSONParser parser = new JSONParser();
-            JSONObject data = (JSONObject) parser.parse(new FileReader("./config.json"));
+            JSONObject data = (JSONObject) parser.parse(new FileReader(pathLauncher+"config.json"));
             this.projectname = data.get("projectname").toString();
             this.address = data.get("address").toString();
             this.port = ((Long) data.get("port")).intValue();
