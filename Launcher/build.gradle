@@ -30,17 +30,3 @@ dependencies {
 	bundle 'com.github.oshi:oshi-core:3.13.0'
 	bundle 'commons-codec:commons-codec:1.11'
 }
-
-task genRuntimeJS(type: Zip) {
-	archiveName = "runtime.zip"
-	destinationDir = file("${buildDir}/tmp")
-	from "runtime/"
-}
-
-task dumpLibs(type: Copy) {
-	into "$buildDir/libs/libraries"
-	from configurations.bundle
-}
-
-
-build.dependsOn tasks.genRuntimeJS, tasks.dumpLibs
