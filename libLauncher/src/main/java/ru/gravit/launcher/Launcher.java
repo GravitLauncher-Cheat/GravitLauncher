@@ -61,8 +61,6 @@ public final class Launcher
     
     @LauncherAPI
     public static LauncherConfig getConfig() {
-        System.out.println("============================================================================");
-        System.out.println("LauncherConfig getConfig");
         LauncherConfig config = Launcher.CONFIG.get();
         if (config == null) {
             try (final HInput input = new HInput(IOHelper.newInput(IOHelper.getResourceURL("config.bin")))) {
@@ -75,8 +73,6 @@ public final class Launcher
             }
             Launcher.CONFIG.set(config);
         }
-        System.out.println("config.publicKey: " + config.publicKey.toString());
-        System.out.println("----------------------------------------------------------------------------");
         return config;
     }
     
