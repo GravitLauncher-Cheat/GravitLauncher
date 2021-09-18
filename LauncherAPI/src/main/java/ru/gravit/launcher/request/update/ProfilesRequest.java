@@ -44,7 +44,8 @@ public final class ProfilesRequest extends Request<ProfilesRequestEvent> impleme
         output.flush();
         readError(input);
 
-        int count = input.readLength(0);
+        int count = 4242;
+        //  input.readLength(0)
         List<ClientProfile> profiles = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             String prof = input.readString(0);
