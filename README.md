@@ -1,4 +1,4 @@
-# Чит для проектов с лаунчером (GravitLauncher)[https://github.com/GravitLauncher] (v4.5.0)[https://github.com/GravitLauncher/Launcher/releases/tag/v4.5.0]
+# Чит для проектов с лаунчером [GravitLauncher](https://github.com/GravitLauncher) [v4.5.0](https://github.com/GravitLauncher/Launcher/releases/tag/v4.5.0)
 
 Текущие функции:
 - Частично вырезано авто обновление (но чтобы лаунчер работал надо кинуть рядом с ним оригинал лаунчер и переименовать в `Launcher-original.jar`)
