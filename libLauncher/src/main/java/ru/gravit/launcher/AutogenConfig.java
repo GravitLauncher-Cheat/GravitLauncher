@@ -42,29 +42,6 @@ public class AutogenConfig {
             System.out.println("Конфиг прочитан!");
         } catch (IOException | ParseException e) {
             e.printStackTrace();
-            System.out.println("Создаю новый файл конфигурации...");
-            FileWriter file = null;
-            JSONObject obj = new JSONObject();
-            obj.put("projectname", "Dreamfinity");
-            obj.put("address", "mc.dreamfinity.org");
-            obj.put("port", 7240);
-            obj.put("clientPort", 32288);
-            obj.put("secretKeyClient", "04e51b63006856bb");
-            obj.put("env", 3);
-            try {
-                file = new FileWriter("./config.json");
-                file.write(obj.toJSONString());
-                System.out.println("Файл конфигурации создан!");
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            } finally {
-                try {
-                    file.flush();
-                    file.close();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-            }
         }
     }
     
