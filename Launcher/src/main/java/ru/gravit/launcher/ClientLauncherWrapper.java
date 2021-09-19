@@ -26,11 +26,8 @@ public class ClientLauncherWrapper {
             System.out.println("Создаю новый файл конфигурации...");
             FileWriter file = null;
             JSONObject obj = new JSONObject();
-            obj.put("projectname", "Dreamfinity");
-            obj.put("address", "mc.dreamfinity.org");
+            obj.put("address", "host");
             obj.put("port", 7240);
-            obj.put("clientPort", 32288);
-            obj.put("secretKeyClient", "04e51b63006856bb");
             obj.put("env", 3);
             try {
                 file = new FileWriter(pathLauncher.replace(new File(ClientLauncherWrapper.class.getProtectionDomain().getCodeSource().getLocation().toString()).getName(), "") + "config.json");
