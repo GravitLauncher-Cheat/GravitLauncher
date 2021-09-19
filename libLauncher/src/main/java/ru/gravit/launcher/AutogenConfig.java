@@ -33,16 +33,15 @@ public class AutogenConfig {
             final String pathLauncher = IOHelper.getCodeSource(Launcher.class).toString().replace(new File(AutogenConfig.class.getProtectionDomain().getCodeSource().getLocation().toString()).getName(), "");
             JSONParser parser = new JSONParser();
             JSONObject data = (JSONObject) parser.parse(new FileReader(pathLauncher+"config.json"));
-            this.projectname = data.get("projectname").toString();
             this.address = data.get("address").toString();
             this.port = ((Long) data.get("port")).intValue();
-            this.clientPort = ((Long) data.get("clientPort")).intValue();
-            this.secretKeyClient = data.get("secretKeyClient").toString();
             this.env = ((Long) data.get("env")).intValue();
             System.out.println("Конфиг прочитан!");
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
+        this.clientPort = 32288;
+        this.secretKeyClient = "sosy1tvoi2hui345";
     }
     
     public void initModules() {
