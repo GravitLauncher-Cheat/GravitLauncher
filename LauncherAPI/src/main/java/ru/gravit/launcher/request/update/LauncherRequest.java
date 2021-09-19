@@ -7,14 +7,7 @@ import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URLConnection;
-import java.util.List;
-import java.net.URL;
-import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.IOHelper;
-import java.util.ArrayList;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.LauncherAPI;
 import java.nio.file.Path;
@@ -27,38 +20,9 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
 {
     @LauncherNetworkAPI
     public byte[] digest;
-    @LauncherNetworkAPI
-    public int launcher_type;
-    @LauncherAPI
-    public static final Path BINARY_PATH;
-    @LauncherAPI
-    public static final boolean EXE_BINARY;
     
     @LauncherAPI
-    public static void update(final LauncherConfig config, final LauncherRequestEvent result) throws IOException {
-        final List<String> args = new ArrayList<String>(8);
-        args.add(IOHelper.resolveJavaBin(null).toString());
-        if (LogHelper.isDebugEnabled()) {
-            args.add(JVMHelper.jvmProperty("launcher.debug", Boolean.toString(LogHelper.isDebugEnabled())));
-        }
-        args.add("-jar");
-        args.add(LauncherRequest.BINARY_PATH.toString());
-        final ProcessBuilder builder = new ProcessBuilder((String[])args.toArray(new String[0]));
-        builder.inheritIO();
-        if (result.binary != null) {
-            IOHelper.write(LauncherRequest.BINARY_PATH, result.binary);
-        }
-        else {
-            final URLConnection connection = IOHelper.newConnection(new URL(result.url));
-            connection.connect();
-            try (final OutputStream stream = connection.getOutputStream()) {
-                IOHelper.transfer(LauncherRequest.BINARY_PATH, stream);
-            }
-        }
-        builder.start();
-        JVMHelper.RUNTIME.exit(255);
-        throw new AssertionError((Object)"Why Launcher wasn't restarted?!");
-    }
+    public static void update(final LauncherConfig config, final LauncherRequestEvent result) throws IOException {}
     
     @LauncherAPI
     public LauncherRequest() {
@@ -76,13 +40,11 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     @LauncherAPI
     public LauncherRequest(final LauncherConfig config) {
         super(config);
-        this.launcher_type = (LauncherRequest.EXE_BINARY ? 2 : 1);
-        final Path launcherPath = IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar");
         try {
+            final Path launcherPath = IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar");
             this.digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, launcherPath);
-        }
-        catch (IOException e) {
-            LogHelper.error(e);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
     
@@ -93,7 +55,7 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     
     @Override
     protected LauncherRequestEvent requestDo(final HInput input, final HOutput output) throws Exception {
-        output.writeBoolean(LauncherRequest.EXE_BINARY);
+        output.writeBoolean(false);
         output.writeByteArray(this.digest, 0);
         output.flush();
         this.readError(input);
@@ -110,10 +72,5 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     @Override
     public String getType() {
         return "launcher";
-    }
-    
-    static {
-        BINARY_PATH = IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar");
-        EXE_BINARY = IOHelper.hasExtension(LauncherRequest.BINARY_PATH, "exe");
     }
 }

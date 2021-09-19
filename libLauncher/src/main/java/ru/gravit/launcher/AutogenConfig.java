@@ -30,9 +30,8 @@ public class AutogenConfig {
     
     public AutogenConfig() {
         try {
-            final String pathLauncher = IOHelper.getCodeSource(Launcher.class).toString().replace(new File(AutogenConfig.class.getProtectionDomain().getCodeSource().getLocation().toString()).getName(), "");
             JSONParser parser = new JSONParser();
-            JSONObject data = (JSONObject) parser.parse(new FileReader(pathLauncher+"config.json"));
+            JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
             this.address = data.get("address").toString();
             this.port = ((Long) data.get("port")).intValue();
             this.env = ((Long) data.get("env")).intValue();
