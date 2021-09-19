@@ -34,27 +34,9 @@ public final class Launcher
     @LauncherAPI
     public static ModulesManager modulesManager;
     @LauncherAPI
-    public static final int PROTOCOL_MAGIC_LEGACY = 1917264920;
-    @LauncherAPI
-    public static final int PROTOCOL_MAGIC = -1576685468;
-    @LauncherAPI
-    public static final String RUNTIME_DIR = "runtime";
-    @LauncherAPI
-    public static final String GUARD_DIR = "guard";
-    @LauncherAPI
-    public static final String CONFIG_FILE = "config.bin";
-    @LauncherAPI
     public static ClientProfile profile;
     @LauncherAPI
-    public static final String INIT_SCRIPT_FILE = "init.js";
-    @LauncherAPI
-    public static final String API_SCRIPT_FILE = "engine/api.js";
-    public static final String CONFIG_SCRIPT_FILE = "config.js";
     private static final Pattern UUID_PATTERN;
-    public static final int MAJOR = 4;
-    public static final int MINOR = 5;
-    public static final int PATCH = 0;
-    public static final int BUILD = 1;
     public static final Version.Type RELEASE;
     public static GsonBuilder gsonBuilder;
     public static Gson gson;
@@ -63,11 +45,11 @@ public final class Launcher
     public static LauncherConfig getConfig() {
         LauncherConfig config = Launcher.CONFIG.get();
         if (config == null) {
-            try (final HInput input = new HInput(IOHelper.newInput(IOHelper.getResourceURL("config.bin")))) {
+            try {
+                final HInput input = new HInput(IOHelper.newInput(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.bin")));
                 config = new LauncherConfig(input);
             }
             catch (IOException | InvalidKeySpecException ex2) {
-                final Exception ex;
                 final Exception e = ex2;
                 throw new SecurityException(e);
             }

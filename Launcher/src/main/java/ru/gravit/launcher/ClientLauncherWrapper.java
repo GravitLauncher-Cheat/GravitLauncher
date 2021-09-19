@@ -21,8 +21,7 @@ import ru.gravit.utils.helper.LogHelper;
 public class ClientLauncherWrapper {
 
     public static void main(final String[] arguments) throws IOException, InterruptedException {
-        final String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
-        if (!new File(pathLauncher.replace(new File(ClientLauncherWrapper.class.getProtectionDomain().getCodeSource().getLocation().toString()).getName(), "")+"config.json").exists()) {
+        if (!new File(IOHelper.getCodeSource(ClientLauncherWrapper.class).getParent().resolve("config.json").toString()).exists()) {
             System.out.println("Создаю новый файл конфигурации...");
             FileWriter file = null;
             JSONObject obj = new JSONObject();
@@ -30,7 +29,7 @@ public class ClientLauncherWrapper {
             obj.put("port", 7240);
             obj.put("env", 3);
             try {
-                file = new FileWriter(pathLauncher.replace(new File(ClientLauncherWrapper.class.getProtectionDomain().getCodeSource().getLocation().toString()).getName(), "") + "config.json");
+                file = new FileWriter(IOHelper.getCodeSource(ClientLauncherWrapper.class).getParent().resolve("config.json").toString());
                 file.write(obj.toJSONString());
                 System.out.println("Файл конфигурации создан!");
             } catch (IOException ioException) {
@@ -58,6 +57,7 @@ public class ClientLauncherWrapper {
             processBuilder.inheritIO();
         }
         final Path javaBin = IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home"), new String[0]));
+        final String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
         final List<String> args = new LinkedList<String>();
         args.add(javaBin.toString());
         args.add(JVMHelper.jvmProperty("launcher.debug", Boolean.toString(LogHelper.isDebugEnabled())));
