@@ -1,3 +1,4 @@
+
 name: push
 on:
   push:
@@ -17,13 +18,12 @@ jobs:
           java-version: 8
 
       - name: Build with Gradle
-        run: .\gradlew.bat build
+        run: ./gradlew.bat build
 
       - name: Create artifacts
         run: |
           mkdir artifacts
           move Launcher\build\libs\Launcher.jar artifacts
-          
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
         with:
