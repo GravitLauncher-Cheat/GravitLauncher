@@ -513,7 +513,7 @@ public final class ClientLauncher
             this.pp = new PlayerProfile(input);
             final byte[] encryptedAccessToken = input.readByteArray(2048);
             final String accessTokenD = new String(SecurityHelper.decrypt(Launcher.getConfig().secretKeyClient.getBytes(), encryptedAccessToken));
-            this.accessToken = SecurityHelper.verifyToken(accessTokenD);
+            this.accessToken = accessTokenD;
             this.autoEnter = input.readBoolean();
             this.fullScreen = input.readBoolean();
             this.ram = input.readVarInt();
