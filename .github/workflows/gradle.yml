@@ -4,7 +4,7 @@ on:
 jobs:
   launcher:
     name: Launcher
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -17,42 +17,14 @@ jobs:
           java-version: 8
 
       - name: Build with Gradle
-        run: ./gradlew.bat build
+        run: ./gradlew build
 
       - name: Create artifacts
         run: |
           mkdir -p artifacts
-          zip -r -9 artifacts/libraries.zip * -x "Launcher/build/libs/Launcher.jar"
+          mv Launcher/build/libs/Launcher.jar artifacts
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
         with:
           name: Launcher
           path: artifacts
-
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        if: github.event.ref == 'refs/tags/*'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: GravitLauncher-cheat ${{ github.ref }}
-          draft: false
-          prerelease: false
-
-      - name: Pack release
-        if: github.event.ref == 'refs/tags/*'
-        run: |
-          cd artifacts/
-          zip -r -9 ../Release.zip *
-      - name: Upload release
-        if: github.event.ref == 'refs/tags/*'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./Release.zip
-          asset_name: Release.zip
-          asset_content_type: application/zip
