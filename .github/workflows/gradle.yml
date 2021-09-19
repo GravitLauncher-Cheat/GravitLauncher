@@ -1,7 +1,7 @@
 name: push
 on:
   push:
-    branches-ignore: [ master ]
+    branches-ignore: master
 jobs:
   launcher:
     name: Launcher
@@ -18,7 +18,7 @@ jobs:
           java-version: 8
 
       - name: Build with Gradle
-        run: ./gradlew.bat build
+        run: gradlew.bat build
 
       - name: Create artifacts
         run: |
