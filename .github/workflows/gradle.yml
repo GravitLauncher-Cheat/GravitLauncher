@@ -30,9 +30,8 @@ jobs:
 
       - name: Create artifacts
         run: |
-          mkdir -p artifacts/build
-          cd Launcher/build/libs/
-          zip -r -x "Launcher/build/libs/Launcher.jar"
+          mkdir -p artifacts
+          zip -r -9 artifacts/libraries.zip * -x "Launcher/build/libs/Launcher.jar"
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
         with:
@@ -47,7 +46,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: GravitLauncher ${{ github.ref }}
+          release_name: GravitLauncher-cheat ${{ github.ref }}
           draft: false
           prerelease: false
 
