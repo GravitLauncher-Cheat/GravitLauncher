@@ -1,5 +1,6 @@
 package ru.gravit.launcher;
 
+import org.json.simple.JSONObject;
 import ru.gravit.utils.helper.LogHelper;
 import java.util.UUID;
 import java.util.Arrays;
@@ -18,7 +19,6 @@ import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.modules.ModulesManager;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.json.simple.JSONObject;
 
 public final class Launcher
 {
