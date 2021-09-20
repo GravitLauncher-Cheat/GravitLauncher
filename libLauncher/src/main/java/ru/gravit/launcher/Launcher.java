@@ -1,5 +1,6 @@
 package ru.gravit.launcher;
 
+import java.io.FileReader;
 import org.json.simple.JSONObject;
 import ru.gravit.utils.helper.LogHelper;
 import java.util.UUID;
