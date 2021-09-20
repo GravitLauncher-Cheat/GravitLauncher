@@ -51,7 +51,7 @@ public final class Launcher
         LauncherConfig config = Launcher.CONFIG.get();
         JSONParser parser = new JSONParser();
         JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
-        this.configMode = ((Int) data.get("configMode")).intValue();
+        this.configMode = (data.get("configMode")).intValue();
         if (config == null) {
             try {
                 if (configMode == 0)
@@ -85,7 +85,7 @@ public final class Launcher
     public static URL getResourceURL(final String name) throws IOException {
         JSONParser parser = new JSONParser();
         JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
-        this.runtimeMode = ((Int) data.get("runtimeMode")).intValue();
+        this.runtimeMode = (data.get("runtimeMode")).intValue();
         final LauncherConfig config = getConfig();
         final byte[] validDigest = config.runtime.get(name);
         //if (validDigest == null) {
