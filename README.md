@@ -16,7 +16,7 @@
 
 
 Туториал:
-  - Скачайте чит в releases (стабильные) или Actions (не стабильные).
+  - Скачайте чит в [releases](https://github.com/gravitlauncher-cheat/gravitlauncher-cheat/releases) (стабильные) или [Actions](https://github.com/gravitlauncher-cheat/gravitlauncher-cheat/actions) (не стабильные).
   - Положите рядом с читом оригинальный лаунчер и переименуйте в `Launcher-original.jar`.
   - Измените адресс и порт лаунчсервера в `config.json`.
   - Если у вас бан по hwid редактируйте `Launcher_HWID.txt`.
