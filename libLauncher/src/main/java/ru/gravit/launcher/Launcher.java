@@ -46,15 +46,14 @@ public final class Launcher
     public static final Version.Type RELEASE;
     public static GsonBuilder gsonBuilder;
     public static Gson gson;
-    private static int configMode;
-    private static int runtimeMode;
 
     @LauncherAPI
     public static LauncherConfig getConfig() {
         LauncherConfig config = Launcher.CONFIG.get();
         JSONParser parser = new JSONParser();
         JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
-        this.configMode = (data.get("configMode")).intValue();
+        int configMode;
+        configMode = (data.get("configMode")).intValue();
         if (config == null) {
             try {
                 if (configMode == 0)
@@ -88,7 +87,8 @@ public final class Launcher
     public static URL getResourceURL(final String name) throws IOException {
         JSONParser parser = new JSONParser();
         JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
-        this.runtimeMode = ((int)data.get("runtimeMode"));
+        int runtimeMode;
+        runtimeMode = ((int)data.get("runtimeMode"));
         final LauncherConfig config = getConfig();
         final byte[] validDigest = config.runtime.get(name);
         //if (validDigest == null) {
