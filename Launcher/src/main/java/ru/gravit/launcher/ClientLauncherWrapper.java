@@ -26,6 +26,8 @@ public class ClientLauncherWrapper {
             obj.put("address", "host");
             obj.put("port", 7240);
             obj.put("env", 3);
+            obj.put("configMode", 0);
+            obj.put("runtimeMode", 0);
             try {
                 file = new FileWriter(IOHelper.getCodeSource(ClientLauncherWrapper.class).getParent().resolve("config.json").toString());
                 file.write(obj.toJSONString());
