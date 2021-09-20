@@ -1,6 +1,7 @@
 package ru.gravit.launcher;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import ru.gravit.utils.helper.LogHelper;
 import java.util.UUID;
 import java.util.Arrays;
