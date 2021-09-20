@@ -105,9 +105,9 @@ public final class Launcher
         }
         final LauncherConfig config = getConfig();
         final byte[] validDigest = config.runtime.get(name);
-        if (validDigest == null) {
-            throw new NoSuchFileException(name);
-        }
+        //if (validDigest == null) {
+            //throw new NoSuchFileException(name);
+        //}
         if(devMode == false)
         {
             Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
@@ -116,7 +116,7 @@ public final class Launcher
         }
         if(devMode == true)
         {
-            url = IOHelper.getResourceURL("runtime/" + name);
+            url = IOHelper.getCodeSource(Launcher.class).getParent().resolve("runtime/" + name).toUri().toURL();
         }
         return url;
     }
