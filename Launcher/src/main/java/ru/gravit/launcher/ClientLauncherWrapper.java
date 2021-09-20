@@ -1,7 +1,6 @@
 package ru.gravit.launcher;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.io.filereader.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
