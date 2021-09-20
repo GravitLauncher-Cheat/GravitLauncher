@@ -18,6 +18,7 @@ import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.modules.ModulesManager;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.json.simple.JSONObject;
 
 public final class Launcher
 {
