@@ -4,7 +4,7 @@ import ru.gravit.utils.helper.LogHelper;
 import java.util.UUID;
 import java.util.Arrays;
 import ru.gravit.utils.helper.SecurityHelper;
-import java.nio.file.NoSuchFileException;
+import java.nio.file.*;
 import java.net.URL;
 import java.security.spec.InvalidKeySpecException;
 import java.io.IOException;
@@ -40,13 +40,15 @@ public final class Launcher
     public static final Version.Type RELEASE;
     public static GsonBuilder gsonBuilder;
     public static Gson gson;
-    
+
     @LauncherAPI
     public static LauncherConfig getConfig() {
         LauncherConfig config = Launcher.CONFIG.get();
         if (config == null) {
             try {
-                final HInput input = new HInput(IOHelper.newInput(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.bin")));
+                Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("launcher-original.jar").toUri());
+                FileSystem fs = FileSystems.newFileSystem(zipfile, null);
+                final HInput input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
                 config = new LauncherConfig(input);
             }
             catch (IOException | InvalidKeySpecException ex2) {
@@ -70,7 +72,9 @@ public final class Launcher
         if (validDigest == null) {
             throw new NoSuchFileException(name);
         }
-        final URL url = IOHelper.getResourceURL("runtime/" + name);
+        Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("launcher-original.jar").toUri());
+        FileSystem fs = FileSystems.newFileSystem(zipfile, null);
+        final URL url = fs.getPath("runtime/" + name).toUri().toURL();
         return url;
     }
     
