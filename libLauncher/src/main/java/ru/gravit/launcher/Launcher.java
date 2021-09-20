@@ -1,11 +1,5 @@
 package ru.gravit.launcher;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import java.util.Collections;
-import java.util.Collection;
-import java.io.FileReader;
 import ru.gravit.utils.helper.LogHelper;
 import java.util.UUID;
 import java.util.Arrays;
@@ -52,10 +46,10 @@ public final class Launcher
         LauncherConfig config = Launcher.CONFIG.get();
         if (config == null) {
             try {
-                   Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
-                   FileSystem fs = FileSystems.newFileSystem(zipfile, null);
-                   final HInput input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
-                   config = new LauncherConfig(input);
+                Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
+                FileSystem fs = FileSystems.newFileSystem(zipfile, null);
+                final HInput input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
+                config = new LauncherConfig(input);
             }
             catch (IOException | InvalidKeySpecException ex2) {
                 final Exception e = ex2;
@@ -70,17 +64,17 @@ public final class Launcher
     public static void setConfig(final LauncherConfig cfg) {
         Launcher.CONFIG.set(cfg);
     }
-    
+
     @LauncherAPI
     public static URL getResourceURL(final String name) throws IOException {
         final LauncherConfig config = getConfig();
         final byte[] validDigest = config.runtime.get(name);
-        //if (validDigest == null) {
-            //throw new NoSuchFileException(name);
-        //}
-           Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
-           FileSystem fs = FileSystems.newFileSystem(zipfile, null);
-           final URL url = fs.getPath("runtime/" + name).toUri().toURL();
+        if (validDigest == null) {
+            throw new NoSuchFileException(name);
+        }
+        Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
+        FileSystem fs = FileSystems.newFileSystem(zipfile, null);
+        final URL url = fs.getPath("runtime/" + name).toUri().toURL();
         return url;
     }
     
