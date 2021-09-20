@@ -1,8 +1,11 @@
 package ru.gravit.launcher;
 
-import java.io.FileReader;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import java.util.Collections;
+import java.util.Collection;
+import java.io.FileReader;
 import ru.gravit.utils.helper.LogHelper;
 import java.util.UUID;
 import java.util.Arrays;
@@ -43,8 +46,8 @@ public final class Launcher
     public static final Version.Type RELEASE;
     public static GsonBuilder gsonBuilder;
     public static Gson gson;
-    private int configMode;
-    private int runtimeMode;
+    private static int configMode;
+    private static int runtimeMode;
 
     @LauncherAPI
     public static LauncherConfig getConfig() {
@@ -85,7 +88,7 @@ public final class Launcher
     public static URL getResourceURL(final String name) throws IOException {
         JSONParser parser = new JSONParser();
         JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
-        this.runtimeMode = (data.get("runtimeMode")).intValue();
+        this.runtimeMode = ((int)data.get("runtimeMode"));
         final LauncherConfig config = getConfig();
         final byte[] validDigest = config.runtime.get(name);
         //if (validDigest == null) {
