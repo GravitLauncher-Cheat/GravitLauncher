@@ -1,12 +1,11 @@
 package ru.gravit.launcher;
 
-import java.io.filereader.FileReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.Collection;
 
 import org.json.simple.JSONObject;
 import ru.gravit.launcher.client.ClientLauncher;
@@ -27,8 +26,6 @@ public class ClientLauncherWrapper {
             obj.put("address", "host");
             obj.put("port", 7240);
             obj.put("env", 3);
-            obj.put("configMode", 0);
-            obj.put("runtimeMode", 0);
             try {
                 file = new FileWriter(IOHelper.getCodeSource(ClientLauncherWrapper.class).getParent().resolve("config.json").toString());
                 file.write(obj.toJSONString());
