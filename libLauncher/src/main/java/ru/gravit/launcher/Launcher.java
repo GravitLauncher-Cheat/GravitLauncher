@@ -18,6 +18,12 @@ import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.modules.ModulesManager;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import java.io.IOException;
+import org.json.simple.parser.ParseException;
+import java.io.FileReader;
+import java.lang.Boolean;
 
 public final class Launcher
 {
@@ -40,15 +46,34 @@ public final class Launcher
     public static final Version.Type RELEASE;
     public static GsonBuilder gsonBuilder;
     public static Gson gson;
+    private static HInput input;
 
     @LauncherAPI
     public static LauncherConfig getConfig() {
+        //HInput input;
+        boolean devMode = false;
+        try {
+            JSONParser parser = new JSONParser();
+            JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
+            devMode = (boolean) data.get("devMode");
+        }
+        catch (IOException | ParseException e)
+        {
+            System.out.println("Ошибка при чтении devMode.");
+        }
         LauncherConfig config = Launcher.CONFIG.get();
         if (config == null) {
             try {
-                Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
-                FileSystem fs = FileSystems.newFileSystem(zipfile, null);
-                final HInput input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
+                if (devMode == false)
+                {
+                    Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
+                    FileSystem fs = FileSystems.newFileSystem(zipfile, null);
+                    input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
+                }
+                if (devMode == true)
+                {
+                    input = new HInput(IOHelper.newInput(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.bin")));
+                }
                 config = new LauncherConfig(input);
             }
             catch (IOException | InvalidKeySpecException ex2) {
@@ -67,14 +92,32 @@ public final class Launcher
 
     @LauncherAPI
     public static URL getResourceURL(final String name) throws IOException {
+        URL url = null;
+        boolean devMode = false;
+        try {
+            JSONParser parser = new JSONParser();
+            JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
+            devMode = (boolean) data.get("devMode");
+        }
+        catch (IOException | ParseException e)
+        {
+            System.out.println("Ошибка при чтении devMode.");
+        }
         final LauncherConfig config = getConfig();
         final byte[] validDigest = config.runtime.get(name);
         if (validDigest == null) {
             throw new NoSuchFileException(name);
         }
-        Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
-        FileSystem fs = FileSystems.newFileSystem(zipfile, null);
-        final URL url = fs.getPath("runtime/" + name).toUri().toURL();
+        if(devMode == false)
+        {
+            Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
+            FileSystem fs = FileSystems.newFileSystem(zipfile, null);
+            url = fs.getPath("runtime/" + name).toUri().toURL();
+        }
+        if(devMode == true)
+        {
+            url = IOHelper.getResourceURL("runtime/" + name);
+        }
         return url;
     }
     
