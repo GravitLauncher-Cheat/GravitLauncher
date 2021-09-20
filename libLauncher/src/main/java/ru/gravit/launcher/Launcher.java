@@ -1,7 +1,6 @@
 package ru.gravit.launcher;
 
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import ru.gravit.utils.helper.LogHelper;
 import java.util.UUID;
 import java.util.Arrays;
@@ -55,7 +54,7 @@ public final class Launcher
             try {
                 if (configMode == 0)
                 {
-                   Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("launcher-original.jar").toUri());
+                   Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
                    FileSystem fs = FileSystems.newFileSystem(zipfile, null);
                    final HInput input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
                    config = new LauncherConfig(input);
@@ -92,7 +91,7 @@ public final class Launcher
         //}
         if (runtimeMode == 0)
         {
-           Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("launcher-original.jar").toUri());
+           Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
            FileSystem fs = FileSystems.newFileSystem(zipfile, null);
            final URL url = fs.getPath("runtime/" + name).toUri().toURL();
         }
