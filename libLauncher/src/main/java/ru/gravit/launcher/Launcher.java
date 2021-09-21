@@ -47,11 +47,10 @@ public final class Launcher
     public static GsonBuilder gsonBuilder;
     public static Gson gson;
     private static HInput input;
+    private static boolean devMode = false;
 
     @LauncherAPI
     public static LauncherConfig getConfig() {
-        //HInput input;
-        boolean devMode = false;
         try {
             JSONParser parser = new JSONParser();
             JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
@@ -64,16 +63,11 @@ public final class Launcher
         LauncherConfig config = Launcher.CONFIG.get();
         if (config == null) {
             try {
-                if (devMode == false)
-                {
+                if (!devMode) {
                     Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
                     FileSystem fs = FileSystems.newFileSystem(zipfile, null);
                     input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
-                }
-                if (devMode == true)
-                {
-                    input = new HInput(IOHelper.newInput(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.bin")));
-                }
+                } else { input = new HInput(IOHelper.newInput(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.bin"))); }
                 config = new LauncherConfig(input);
             }
             catch (IOException | InvalidKeySpecException ex2) {
@@ -93,7 +87,6 @@ public final class Launcher
     @LauncherAPI
     public static URL getResourceURL(final String name) throws IOException {
         URL url = null;
-        boolean devMode = false;
         try {
             JSONParser parser = new JSONParser();
             JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
@@ -108,16 +101,11 @@ public final class Launcher
         //if (validDigest == null) {
             //throw new NoSuchFileException(name);
         //}
-        if(devMode == false)
-        {
+        if(!devMode) {
             Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
             FileSystem fs = FileSystems.newFileSystem(zipfile, null);
             url = fs.getPath("runtime/" + name).toUri().toURL();
-        }
-        if(devMode == true)
-        {
-            url = IOHelper.getCodeSource(Launcher.class).getParent().resolve("runtime/" + name).toUri().toURL();
-        }
+        } else { url = IOHelper.getCodeSource(Launcher.class).getParent().resolve("runtime/" + name).toUri().toURL(); }
         return url;
     }
     
