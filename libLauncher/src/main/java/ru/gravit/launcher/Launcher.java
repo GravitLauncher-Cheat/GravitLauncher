@@ -83,6 +83,7 @@ public final class Launcher
 
     @LauncherAPI
     public static URL getResourceURL(final String name) throws IOException {
+        URL url = null;
         boolean devMode = false;
         try {
             JSONParser parser = new JSONParser();
@@ -93,7 +94,6 @@ public final class Launcher
         {
             System.out.println("Ошибка при чтении devMode.");
         }
-        URL url = null;
         final LauncherConfig config = getConfig();
         final byte[] validDigest = config.runtime.get(name);
         //if (validDigest == null) {
