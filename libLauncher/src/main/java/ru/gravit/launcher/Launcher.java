@@ -52,6 +52,15 @@ public final class Launcher
     public static LauncherConfig getConfig() {
         //HInput input;
         boolean devMode = false;
+        try {
+            JSONParser parser = new JSONParser();
+            JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
+            devMode = (boolean) data.get("devMode");
+        }
+        catch (IOException | ParseException e)
+        {
+            System.out.println("Ошибка при чтении devMode.");
+        }
         LauncherConfig config = Launcher.CONFIG.get();
         if (config == null) {
             try {
@@ -65,9 +74,9 @@ public final class Launcher
                 {
                     input = new HInput(IOHelper.newInput(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.bin")));
                 }
+                config = new LauncherConfig(input);
             }
-            //InvalidKeySpecException
-            catch (IOException ex2) {
+            catch (IOException | InvalidKeySpecException ex2) {
                 final Exception e = ex2;
                 throw new SecurityException(e);
             }
