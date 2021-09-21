@@ -47,28 +47,24 @@ public final class Launcher
     public static GsonBuilder gsonBuilder;
     public static Gson gson;
     private static HInput input;
-    private static boolean devMode = false;
     
-    public static setDevMode() {
-        try {
-            JSONParser parser = new JSONParser();
-            JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
-            devMode = (boolean) data.get("devMode");
-        } catch (IOException | ParseException e) { System.out.println("Ошибка при чтении devMode."); }
-    }
-    setDevMode();
-
     @LauncherAPI
     public static LauncherConfig getConfig() {
+        //HInput input;
+        boolean devMode = false;
         LauncherConfig config = Launcher.CONFIG.get();
         if (config == null) {
             try {
-                if (!devMode) {
+                if (devMode == false)
+                {
                     Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
                     FileSystem fs = FileSystems.newFileSystem(zipfile, null);
                     input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
-                } else { input = new HInput(IOHelper.newInput(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.bin"))); }
-                config = new LauncherConfig(input);
+                }
+                if (devMode == true)
+                {
+                    input = new HInput(IOHelper.newInput(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.bin")));
+                }
             }
             catch (IOException | InvalidKeySpecException ex2) {
                 final Exception e = ex2;
@@ -86,17 +82,32 @@ public final class Launcher
 
     @LauncherAPI
     public static URL getResourceURL(final String name) throws IOException {
+        boolean devMode = false;
+        try {
+            JSONParser parser = new JSONParser();
+            JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
+            devMode = (boolean) data.get("devMode");
+        }
+        catch (IOException | ParseException e)
+        {
+            System.out.println("Ошибка при чтении devMode.");
+        }
         URL url = null;
         final LauncherConfig config = getConfig();
         final byte[] validDigest = config.runtime.get(name);
         //if (validDigest == null) {
             //throw new NoSuchFileException(name);
         //}
-        if(!devMode) {
+        if(devMode == false)
+        {
             Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
             FileSystem fs = FileSystems.newFileSystem(zipfile, null);
             url = fs.getPath("runtime/" + name).toUri().toURL();
-        } else { url = IOHelper.getCodeSource(Launcher.class).getParent().resolve("runtime/" + name).toUri().toURL(); }
+        }
+        if(devMode == true)
+        {
+            url = IOHelper.getCodeSource(Launcher.class).getParent().resolve("runtime/" + name).toUri().toURL();
+        }
         return url;
     }
     
