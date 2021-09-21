@@ -20,13 +20,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import java.io.IOException;
 import org.json.simple.parser.ParseException;
 import java.io.FileReader;
-import java.lang.Boolean;
 
-public final class Launcher
-{
+public final class Launcher {
     @LauncherAPI
     public static final String SKIN_URL_PROPERTY = "skinURL";
     @LauncherAPI
@@ -47,37 +44,30 @@ public final class Launcher
     public static GsonBuilder gsonBuilder;
     public static Gson gson;
     private static HInput input;
-    
-    @LauncherAPI
-    public static LauncherConfig getConfig() {
-        //HInput input;
-        boolean devMode = false;
+    private static boolean devMode = false;
+
+    private static void setDevMode() {
         try {
             JSONParser parser = new JSONParser();
             JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
             devMode = (boolean) data.get("devMode");
-        }
-        catch (IOException | ParseException e)
-        {
-            System.out.println("Ошибка при чтении devMode.");
-        }
+        } catch (IOException | ParseException ignored) { System.out.println("Ошибка при чтении devMode."); }
+    }
+
+    @LauncherAPI
+    public static LauncherConfig getConfig() {
         LauncherConfig config = Launcher.CONFIG.get();
+        setDevMode();
         if (config == null) {
             try {
-                if (devMode == false)
-                {
+                if (!devMode) {
                     Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
                     FileSystem fs = FileSystems.newFileSystem(zipfile, null);
                     input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
-                }
-                if (devMode == true)
-                {
-                    input = new HInput(IOHelper.newInput(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.bin")));
-                }
+                } else { input = new HInput(IOHelper.newInput(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.bin"))); }
                 config = new LauncherConfig(input);
             }
-            catch (IOException | InvalidKeySpecException ex2) {
-                final Exception e = ex2;
+            catch (IOException | InvalidKeySpecException e) {
                 throw new SecurityException(e);
             }
             Launcher.CONFIG.set(config);
@@ -93,31 +83,17 @@ public final class Launcher
     @LauncherAPI
     public static URL getResourceURL(final String name) throws IOException {
         URL url = null;
-        boolean devMode = false;
-        try {
-            JSONParser parser = new JSONParser();
-            JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
-            devMode = (boolean) data.get("devMode");
-        }
-        catch (IOException | ParseException e)
-        {
-            System.out.println("Ошибка при чтении devMode.");
-        }
+        setDevMode();
         final LauncherConfig config = getConfig();
         final byte[] validDigest = config.runtime.get(name);
-        //if (validDigest == null) {
-            //throw new NoSuchFileException(name);
-        //}
-        if(devMode == false)
-        {
+        if (validDigest == null) {
+            throw new NoSuchFileException(name);
+        }
+        if(!devMode) {
             Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
             FileSystem fs = FileSystems.newFileSystem(zipfile, null);
             url = fs.getPath("runtime/" + name).toUri().toURL();
-        }
-        if(devMode == true)
-        {
-            url = IOHelper.getCodeSource(Launcher.class).getParent().resolve("runtime/" + name).toUri().toURL();
-        }
+        } else { url = IOHelper.getCodeSource(Launcher.class).getParent().resolve("runtime/" + name).toUri().toURL(); }
         return url;
     }
     
