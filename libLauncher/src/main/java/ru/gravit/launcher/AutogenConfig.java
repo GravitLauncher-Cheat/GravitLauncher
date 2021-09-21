@@ -35,12 +35,12 @@ public class AutogenConfig {
             this.address = data.get("address").toString();
             this.port = ((Long) data.get("port")).intValue();
             this.env = ((Long) data.get("env")).intValue();
+            this.secretKeyClient = data.get("secretKey").toString();
             System.out.println("Конфиг прочитан!");
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
         this.clientPort = 32288;
-        this.secretKeyClient = data.get("secretKey").toString();
     }
     
     public void initModules() {
