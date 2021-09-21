@@ -48,18 +48,18 @@ public final class Launcher
     public static Gson gson;
     private static HInput input;
     private static boolean devMode = false;
-
-    @LauncherAPI
-    public static LauncherConfig getConfig() {
+    
+    public static setDevMode() {
         try {
             JSONParser parser = new JSONParser();
             JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
             devMode = (boolean) data.get("devMode");
-        }
-        catch (IOException | ParseException e)
-        {
-            System.out.println("Ошибка при чтении devMode.");
-        }
+        } catch (IOException | ParseException e) { System.out.println("Ошибка при чтении devMode."); }
+    }
+    setDevMode();
+
+    @LauncherAPI
+    public static LauncherConfig getConfig() {
         LauncherConfig config = Launcher.CONFIG.get();
         if (config == null) {
             try {
@@ -87,15 +87,6 @@ public final class Launcher
     @LauncherAPI
     public static URL getResourceURL(final String name) throws IOException {
         URL url = null;
-        try {
-            JSONParser parser = new JSONParser();
-            JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
-            devMode = (boolean) data.get("devMode");
-        }
-        catch (IOException | ParseException e)
-        {
-            System.out.println("Ошибка при чтении devMode.");
-        }
         final LauncherConfig config = getConfig();
         final byte[] validDigest = config.runtime.get(name);
         //if (validDigest == null) {
