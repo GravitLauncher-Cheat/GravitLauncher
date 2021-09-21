@@ -66,7 +66,8 @@ public final class Launcher
                     input = new HInput(IOHelper.newInput(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.bin")));
                 }
             }
-            catch (IOException | InvalidKeySpecException ex2) {
+            //InvalidKeySpecException
+            catch (IOException ex2) {
                 final Exception e = ex2;
                 throw new SecurityException(e);
             }
