@@ -40,7 +40,7 @@ public class AutogenConfig {
             e.printStackTrace();
         }
         this.clientPort = 32288;
-        this.secretKeyClient = "13371pizdahui228";
+        this.secretKeyClient = data.get("secretKey").toString();
     }
     
     public void initModules() {

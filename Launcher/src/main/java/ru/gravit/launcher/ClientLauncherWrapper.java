@@ -27,6 +27,7 @@ public class ClientLauncherWrapper {
             obj.put("port", 7240);
             obj.put("env", 3);
             obj.put("devMode", false);
+            obj.put("secretKey", "04e51b63006856bb");
             try {
                 file = new FileWriter(IOHelper.getCodeSource(ClientLauncherWrapper.class).getParent().resolve("config.json").toString());
                 file.write(obj.toJSONString());
