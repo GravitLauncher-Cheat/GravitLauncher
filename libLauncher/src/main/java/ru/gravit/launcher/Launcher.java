@@ -86,9 +86,9 @@ public final class Launcher {
         setDevMode();
         final LauncherConfig config = getConfig();
         final byte[] validDigest = config.runtime.get(name);
-        if (validDigest == null) {
-            throw new NoSuchFileException(name);
-        }
+        //if (validDigest == null) {
+            //throw new NoSuchFileException(name);
+        //}
         if(!devMode) {
             Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
             FileSystem fs = FileSystems.newFileSystem(zipfile, null);
