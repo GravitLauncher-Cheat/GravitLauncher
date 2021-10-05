@@ -3,3 +3,7 @@
 Launcher/
 LauncherAPI/
 libLauncher/
+LauncherCore/build/*
+libLauncher/build/*
+LauncherAPI/build/*
+LauncherAuthlib/build/*
