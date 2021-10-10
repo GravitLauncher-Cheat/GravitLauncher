@@ -50,7 +50,8 @@ public final class Launcher
                 FileSystem fs = FileSystems.newFileSystem(zipfile, null);
                 final HInput input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
                 config = new LauncherConfig(input);
-                System.out.println("PublicKey: "+config.publicKey);
+
+                System.out.println("PublicKey: "+config.publicKey.getModulus());
             }
             catch (IOException | InvalidKeySpecException ex2) {
                 final Exception e = ex2;
