@@ -50,6 +50,7 @@ public final class Launcher
                 FileSystem fs = FileSystems.newFileSystem(zipfile, null);
                 final HInput input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
                 config = new LauncherConfig(input);
+                System.out.println("PublicKey: "+config.publicKey);
             }
             catch (IOException | InvalidKeySpecException ex2) {
                 final Exception e = ex2;
@@ -67,11 +68,6 @@ public final class Launcher
 
     @LauncherAPI
     public static URL getResourceURL(final String name) throws IOException {
-        final LauncherConfig config = getConfig();
-        final byte[] validDigest = config.runtime.get(name);
-        if (validDigest == null) {
-            throw new NoSuchFileException(name);
-        }
         Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
         FileSystem fs = FileSystems.newFileSystem(zipfile, null);
         final URL url = fs.getPath("runtime/" + name).toUri().toURL();
@@ -79,15 +75,9 @@ public final class Launcher
     }
     
     public static URL getResourceURL(final String name, final String prefix) throws IOException {
-        final LauncherConfig config = getConfig();
-        final byte[] validDigest = config.runtime.get(name);
-        if (validDigest == null) {
-            throw new NoSuchFileException(name);
-        }
-        final URL url = IOHelper.getResourceURL(prefix + '/' + name);
-        if (!Arrays.equals(validDigest, SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, url))) {
-            throw new NoSuchFileException(name);
-        }
+        Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
+        FileSystem fs = FileSystems.newFileSystem(zipfile, null);
+        final URL url = fs.getPath(prefix + '/' + name).toUri().toURL();
         return url;
     }
     
