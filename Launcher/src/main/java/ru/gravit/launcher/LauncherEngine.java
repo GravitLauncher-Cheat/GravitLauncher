@@ -58,9 +58,6 @@ public class LauncherEngine
         this.runtimeProvider.preLoad();
         LauncherGuardManager.initGuard(false);
         Objects.requireNonNull(args, "args");
-        if (this.started.getAndSet(true)) {
-            throw new IllegalStateException("Launcher has been already started");
-        }
         Launcher.modulesManager.initModules();
         this.runtimeProvider.preLoad();
         (FunctionalBridge.getHWID = CommonHelper.newThread("GetHWID Thread", true, FunctionalBridge::getHWID)).start();
