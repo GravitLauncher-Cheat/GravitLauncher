@@ -15,8 +15,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.net.InetSocketAddress;
 import ru.gravit.launcher.serialize.stream.StreamObject;
 
-public final class LauncherConfig extends StreamObject
-{
+public final class LauncherConfig extends StreamObject {
     public static final AutogenConfig config;
     @LauncherAPI
     public InetSocketAddress address;
