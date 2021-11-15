@@ -1,23 +1,22 @@
 package ru.gravit.launcher.client;
 
+import ru.gravit.launcher.*;
 import ru.gravit.launcher.serialize.stream.StreamObject;
-import java.nio.file.FileVisitResult;
+
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.SimpleFileVisitor;
 import java.util.EnumSet;
 import com.google.gson.GsonBuilder;
 import java.util.function.Function;
-import java.nio.file.FileVisitor;
+
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import java.net.URL;
 import java.util.Iterator;
 import ru.gravit.launcher.hasher.DirWatcher;
-import ru.gravit.launcher.LauncherAgent;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
-import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.LauncherEngine;
+
 import java.net.Socket;
 import ru.gravit.utils.helper.EnvHelper;
 import ru.gravit.utils.helper.IOHelper;
@@ -37,17 +36,16 @@ import java.awt.Component;
 import javax.swing.JOptionPane;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.launcher.Launcher;
+
 import java.util.Collections;
 import ru.gravit.launcher.profiles.ClientProfile;
 import java.util.Collection;
 import ru.gravit.utils.PublicURLClassLoader;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Set;
-import java.nio.file.Path;
+
 import com.google.gson.Gson;
 
 public final class ClientLauncher
@@ -119,6 +117,9 @@ public final class ClientLauncher
         if (params.width > 0 && params.height > 0) {
             Collections.addAll(args, new String[] { "--width", Integer.toString(params.width) });
             Collections.addAll(args, new String[] { "--height", Integer.toString(params.height) });
+        }
+        if (LauncherConfig.config.liteloader) {
+            Collections.addAll(args, new String[]{"--tweakClass", "com.mumfrey.liteloader.launch.LiteLoaderTweaker"});
         }
     }
     
@@ -354,6 +355,9 @@ public final class ClientLauncher
         Launcher.modulesManager.initModules();
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
         final LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
+        if (LauncherConfig.config.liteloader) {
+            LauncherAgent.addJVMClassPath(IOHelper.getCodeSource(Launcher.class).getParent().resolve("liteloader-" + profile.getVersion() + ".jar").toString().replace("Minecraft ", ""));
+        }
         for (final Path classpathURL : classPath) {
             LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
         }

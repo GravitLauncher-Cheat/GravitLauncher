@@ -24,6 +24,7 @@ public class ClientLauncherWrapper {
             FileWriter file = null;
             JSONObject obj = new JSONObject();
             obj.put("address", "host");
+            obj.put("liteloader", "false");
             obj.put("port", 7240);
             obj.put("env", 3);
             try {
