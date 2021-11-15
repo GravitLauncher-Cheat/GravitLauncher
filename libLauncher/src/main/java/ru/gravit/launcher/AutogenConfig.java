@@ -26,6 +26,7 @@ public class AutogenConfig {
     public String guardLicenseKey;
     public String guardLicenseEncryptKey;
     public int env;
+    public boolean liteloader;
     public boolean isWarningMissArchJava;
     
     public AutogenConfig() {
@@ -35,6 +36,7 @@ public class AutogenConfig {
             this.address = data.get("address").toString();
             this.port = ((Long) data.get("port")).intValue();
             this.env = ((Long) data.get("env")).intValue();
+            this.liteloader = Boolean.parseBoolean(data.get("liteloader").toString());
             System.out.println("Конфиг прочитан!");
         } catch (IOException | ParseException e) {
             e.printStackTrace();
