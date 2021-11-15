@@ -22,6 +22,13 @@
   - Если у вас бан по hwid редактируйте `Launcher_HWID.txt`.
   - Запустите лаунчер.
 
+Загрузка liteloader:
+  - Скачайте liteloader от [сюда](https://www.liteloader.com/download).
+  - Запустите установщик и выберите "Extract liteloader.jar".
+  - Переименнуйте в LiteLoader-<mc version>.jar.
+  - Положите рядом с читом.
+  - В конфиге поставте liteloader на true.
+
 
 Про `env` в `config.json`:
   - 0 Dev (дебаг включен по умолчанию, все сообщения).
