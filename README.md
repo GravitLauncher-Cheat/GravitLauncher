@@ -38,6 +38,7 @@
 - runtimeMode
 
 У них есть 3 значения `project` `custom` и `integral`
+
 `project` - рантайм или конфиг берется из оригинального лаунчера (Launcher-original.jar)
 `custom` - рядом с Launcher.jar
 `integral` - из Launcher.jar
