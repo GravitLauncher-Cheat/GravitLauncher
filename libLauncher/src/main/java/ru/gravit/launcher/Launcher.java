@@ -66,6 +66,7 @@ public final class Launcher {
                     input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
                 } else { input = new HInput(IOHelper.newInput(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.bin"))); }
                 config = new LauncherConfig(input);
+                System.out.println("PublicKey: "+config.publicKey.getModulus());
             }
             catch (IOException | InvalidKeySpecException e) {
                 throw new SecurityException(e);
@@ -84,11 +85,6 @@ public final class Launcher {
     public static URL getResourceURL(final String name) throws IOException {
         URL url = null;
         setDevMode();
-        final LauncherConfig config = getConfig();
-        final byte[] validDigest = config.runtime.get(name);
-        //if (validDigest == null) {
-            //throw new NoSuchFileException(name);
-        //}
         if(!devMode) {
             Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
             FileSystem fs = FileSystems.newFileSystem(zipfile, null);
@@ -98,15 +94,9 @@ public final class Launcher {
     }
     
     public static URL getResourceURL(final String name, final String prefix) throws IOException {
-        final LauncherConfig config = getConfig();
-        final byte[] validDigest = config.runtime.get(name);
-        if (validDigest == null) {
-            throw new NoSuchFileException(name);
-        }
-        final URL url = IOHelper.getResourceURL(prefix + '/' + name);
-        if (!Arrays.equals(validDigest, SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, url))) {
-            throw new NoSuchFileException(name);
-        }
+        Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
+        FileSystem fs = FileSystems.newFileSystem(zipfile, null);
+        final URL url = fs.getPath(prefix + '/' + name).toUri().toURL();
         return url;
     }
     
