@@ -17,7 +17,7 @@ import ru.gravit.launcher.serialize.stream.StreamObject;
 
 public final class LauncherConfig extends StreamObject
 {
-    private static final AutogenConfig config;
+    public static final AutogenConfig config;
     @LauncherAPI
     public InetSocketAddress address;
     public String nettyAddress;
