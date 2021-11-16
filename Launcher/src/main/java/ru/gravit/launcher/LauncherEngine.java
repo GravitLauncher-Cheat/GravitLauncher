@@ -4,7 +4,6 @@ import ru.gravit.launcher.client.DirBridge;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.launcher.client.FunctionalBridge;
 import java.util.Objects;
-import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.client.ClientModuleManager;
 import com.google.gson.GsonBuilder;
@@ -56,7 +55,6 @@ public class LauncherEngine
         }
         this.runtimeProvider.init(false);
         this.runtimeProvider.preLoad();
-        LauncherGuardManager.initGuard(false);
         Objects.requireNonNull(args, "args");
         Launcher.modulesManager.initModules();
         this.runtimeProvider.preLoad();

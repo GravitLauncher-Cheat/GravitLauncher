@@ -23,9 +23,6 @@ public class AutogenConfig {
     public boolean isDownloadJava;
     public boolean isNettyEnabled;
     public String secretKeyClient;
-    public String guardLicenseName;
-    public String guardLicenseKey;
-    public String guardLicenseEncryptKey;
     public int env;
     public boolean liteloader;
     public boolean isWarningMissArchJava;
