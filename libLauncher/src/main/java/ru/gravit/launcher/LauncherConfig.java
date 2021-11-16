@@ -33,9 +33,6 @@ public final class LauncherConfig extends StreamObject {
     public final boolean isDownloadJava;
     public final boolean isWarningMissArchJava;
     public final boolean isNettyEnabled;
-    public final String guardLicenseName;
-    public final String guardLicenseKey;
-    public final String guardLicenseEncryptKey;
     
     public static AutogenConfig getAutogenConfig() {
         return LauncherConfig.config;
@@ -51,9 +48,6 @@ public final class LauncherConfig extends StreamObject {
         this.isDownloadJava = LauncherConfig.config.isDownloadJava;
         this.isUsingWrapper = LauncherConfig.config.isUsingWrapper;
         this.isWarningMissArchJava = LauncherConfig.config.isWarningMissArchJava;
-        this.guardLicenseEncryptKey = LauncherConfig.config.guardLicenseEncryptKey;
-        this.guardLicenseKey = LauncherConfig.config.guardLicenseKey;
-        this.guardLicenseName = LauncherConfig.config.guardLicenseName;
         this.nettyPort = LauncherConfig.config.nettyPort;
         this.nettyAddress = LauncherConfig.config.nettyAddress;
         this.isNettyEnabled = LauncherConfig.config.isNettyEnabled;
@@ -90,9 +84,6 @@ public final class LauncherConfig extends StreamObject {
         this.runtime = Collections.unmodifiableMap((Map<? extends String, ? extends byte[]>)new HashMap<String, byte[]>(runtime));
         this.projectname = projectname;
         this.clientPort = 32148;
-        this.guardLicenseName = "FREE";
-        this.guardLicenseKey = "AAAA-BBBB-CCCC-DDDD";
-        this.guardLicenseEncryptKey = "12345";
         this.isUsingWrapper = true;
         this.isDownloadJava = false;
         this.isWarningMissArchJava = true;
@@ -105,9 +96,6 @@ public final class LauncherConfig extends StreamObject {
         this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
         this.runtime = Collections.unmodifiableMap((Map<? extends String, ? extends byte[]>)new HashMap<String, byte[]>(runtime));
         this.projectname = "Minecraft";
-        this.guardLicenseName = "FREE";
-        this.guardLicenseKey = "AAAA-BBBB-CCCC-DDDD";
-        this.guardLicenseEncryptKey = "12345";
         this.clientPort = 32148;
         this.isUsingWrapper = true;
         this.isDownloadJava = false;

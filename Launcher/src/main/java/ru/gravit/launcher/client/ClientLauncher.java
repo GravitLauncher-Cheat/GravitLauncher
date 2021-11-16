@@ -11,7 +11,6 @@ import java.util.function.Function;
 
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import java.net.URL;
-import java.util.Iterator;
 import ru.gravit.launcher.hasher.DirWatcher;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.serialize.HInput;
@@ -20,11 +19,9 @@ import ru.gravit.launcher.gui.JSRuntimeProvider;
 import java.net.Socket;
 import ru.gravit.utils.helper.EnvHelper;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.utils.helper.CommonHelper;
 import java.io.IOException;
 import ru.gravit.launcher.serialize.HOutput;
-import java.net.SocketAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import ru.gravit.launcher.hasher.HashedDir;
@@ -32,7 +29,6 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.MethodHandles;
 import java.util.LinkedList;
-import java.awt.Component;
 import javax.swing.JOptionPane;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.JVMHelper;
@@ -243,7 +239,12 @@ public final class ClientLauncher
         })).start();
         checkJVMBitsAndVersion();
         LogHelper.debug("Resolving JVM binary");
-        final Path javaBin = LauncherGuardManager.getGuardJavaBinPath();
+        final Path javaBin;
+        if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
+            javaBin = IOHelper.resolveJavaBin(ClientLauncher.getJavaBinPath());
+        } else {
+            javaBin = IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home"), new String[0]));
+        }
         context.javaBin = javaBin;
         context.clientProfile = profile;
         context.playerProfile = params.pp;
@@ -270,13 +271,11 @@ public final class ClientLauncher
         profile.pushOptionalJvmArgs(context.args);
         Collections.addAll(context.args, new String[] { "-Djava.library.path=".concat(params.clientDir.resolve(ClientLauncher.NATIVES_DIR).toString()) });
         Collections.addAll(context.args, new String[] { "-javaagent:".concat(pathLauncher) });
-        LauncherGuardManager.guard.addCustomParams(context);
         Collections.addAll(context.args, new String[] { ClientLauncher.class.getName() });
         LogHelper.debug("Commandline: " + context.args);
         LogHelper.debug("Launching client instance");
         final ProcessBuilder builder = new ProcessBuilder(context.args);
         context.builder = builder;
-        LauncherGuardManager.guard.addCustomEnv(context);
         EnvHelper.addEnv(builder);
         builder.directory(params.clientDir.toFile());
         builder.inheritIO();
@@ -329,7 +328,6 @@ public final class ClientLauncher
         }
         engine.runtimeProvider.init(true);
         engine.runtimeProvider.preLoad();
-        LauncherGuardManager.initGuard(true);
         LogHelper.debug("Reading ClientLauncher params");
         Params params;
         ClientProfile profile;

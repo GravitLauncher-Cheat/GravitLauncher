@@ -18,9 +18,12 @@ import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.modules.ModulesManager;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import java.io.FileReader;
 
-public final class Launcher
-{
+public final class Launcher {
     @LauncherAPI
     public static final String SKIN_URL_PROPERTY = "skinURL";
     @LauncherAPI
@@ -40,21 +43,28 @@ public final class Launcher
     public static final Version.Type RELEASE;
     public static GsonBuilder gsonBuilder;
     public static Gson gson;
+    private static HInput input;
 
     @LauncherAPI
     public static LauncherConfig getConfig() {
         LauncherConfig config = Launcher.CONFIG.get();
         if (config == null) {
             try {
-                Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
-                FileSystem fs = FileSystems.newFileSystem(zipfile, null);
-                final HInput input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
+                if (LauncherConfig.config.configMode.equals("project")) {
+                    Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
+                    FileSystem fs = FileSystems.newFileSystem(zipfile, null);
+                    input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
+                }
+                if (LauncherConfig.config.configMode.equals("custom")) {
+                	input = new HInput(IOHelper.newInput(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.bin")));
+                }
+                if (LauncherConfig.config.configMode.equals("integral")) {
+                    input = new HInput(IOHelper.newInput(IOHelper.getResourceURL("config.bin")));
+                }
                 config = new LauncherConfig(input);
-
-                System.out.println("PublicKey: "+config.publicKey.getModulus());
+                LogHelper.debug("PublicKey: "+config.publicKey.getModulus());
             }
-            catch (IOException | InvalidKeySpecException ex2) {
-                final Exception e = ex2;
+            catch (IOException | InvalidKeySpecException e) {
                 throw new SecurityException(e);
             }
             Launcher.CONFIG.set(config);
@@ -69,16 +79,21 @@ public final class Launcher
 
     @LauncherAPI
     public static URL getResourceURL(final String name) throws IOException {
-        Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
-        FileSystem fs = FileSystems.newFileSystem(zipfile, null);
-        final URL url = fs.getPath("runtime/" + name).toUri().toURL();
-        return url;
-    }
-    
-    public static URL getResourceURL(final String name, final String prefix) throws IOException {
-        Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
-        FileSystem fs = FileSystems.newFileSystem(zipfile, null);
-        final URL url = fs.getPath(prefix + '/' + name).toUri().toURL();
+        URL url = null;
+
+        if(LauncherConfig.config.runtimeMode.equals("project")) {
+            Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
+            FileSystem fs = FileSystems.newFileSystem(zipfile, null);
+            url = fs.getPath("runtime/" + name).toUri().toURL();
+        }
+
+        if(LauncherConfig.config.runtimeMode.equals("custom")) {
+        	url = IOHelper.getCodeSource(Launcher.class).getParent().resolve("runtime/" + name).toUri().toURL(); 
+        }
+
+        if(LauncherConfig.config.runtimeMode.equals("integral")) {
+            url = IOHelper.getResourceURL("runtime/" + name);
+        }
         return url;
     }
     

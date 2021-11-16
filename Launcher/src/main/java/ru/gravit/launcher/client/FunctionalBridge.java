@@ -4,7 +4,6 @@ import java.util.concurrent.Executors;
 import ru.gravit.launcher.events.request.AuthRequestEvent;
 import ru.gravit.launcher.managers.HasherManager;
 import ru.gravit.launcher.managers.HasherStore;
-import ru.gravit.launcher.guard.LauncherGuardManager;
 import javafx.concurrent.Task;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 import java.io.IOException;
@@ -19,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import ru.gravit.launcher.hwid.OshiHWIDProvider;
 import java.util.concurrent.ExecutorService;
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.utils.helper.JVMHelper;
 
 public class FunctionalBridge
 {
@@ -77,7 +77,7 @@ public class FunctionalBridge
     
     @LauncherAPI
     public static int getClientJVMBits() {
-        return LauncherGuardManager.guard.getClientJVMBits();
+        return JVMHelper.JVM_BITS;
     }
     
     @LauncherAPI
@@ -95,7 +95,7 @@ public class FunctionalBridge
     
     @LauncherAPI
     public static void setAuthParams(final AuthRequestEvent event) {
-        LauncherGuardManager.guard.setProtectToken(event.protectToken);
+
     }
     
     static {
