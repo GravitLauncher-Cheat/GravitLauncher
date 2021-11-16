@@ -4,6 +4,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.io.File;
 import java.io.FileReader;
@@ -28,6 +29,8 @@ public class AutogenConfig {
     public int env;
     public boolean liteloader;
     public boolean isWarningMissArchJava;
+    public String configMode;
+    public String runtimeMode;
     
     public AutogenConfig() {
         try {
@@ -37,9 +40,16 @@ public class AutogenConfig {
             this.port = ((Long) data.get("port")).intValue();
             this.env = ((Long) data.get("env")).intValue();
             this.liteloader = Boolean.parseBoolean(data.get("liteloader").toString());
-            System.out.println("Конфиг прочитан!");
+            this.configMode = (String) data.get("configMode");
+            this.runtimeMode = (String) data.get("runtimeMode");
+            LogHelper.debug("Конфиг прочитан!");
         } catch (IOException | ParseException e) {
-            e.printStackTrace();
+            if (LogHelper.isStacktraceEnabled()) {
+                LogHelper.error("При чтении конфига произошла ошибка: "+e);
+            } else {
+                LogHelper.error("При чтении конфига произошла ошибка:");
+                e.printStackTrace();
+            }
         }
         this.clientPort = 32288;
         this.secretKeyClient = "13371pizdahui228";

@@ -20,19 +20,19 @@ public class ClientLauncherWrapper {
 
     public static void main(final String[] arguments) throws IOException, InterruptedException {
         if (!new File(IOHelper.getCodeSource(ClientLauncherWrapper.class).getParent().resolve("config.json").toString()).exists()) {
-            System.out.println("Создаю новый файл конфигурации...");
+            LogHelper.debug("Создаю новый файл конфигурации...");
             FileWriter file = null;
             JSONObject obj = new JSONObject();
             obj.put("address", "host");
-            obj.put("liteloader", "false");
             obj.put("port", 7240);
-            obj.put("env", 3);
+            obj.put("liteloader", "false");
             obj.put("configMode", "project");
             obj.put("runtimeMode", "project");
+            obj.put("env", 3);
             try {
                 file = new FileWriter(IOHelper.getCodeSource(ClientLauncherWrapper.class).getParent().resolve("config.json").toString());
                 file.write(obj.toJSONString());
-                System.out.println("Файл конфигурации создан!");
+                LogHelper.debug("Файл конфигурации создан!");
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             } finally {

@@ -44,39 +44,25 @@ public final class Launcher {
     public static GsonBuilder gsonBuilder;
     public static Gson gson;
     private static HInput input;
-    private static String configMode;
-    private static String runtimeMode;
-
-    private static void setModes() {
-        try {
-            JSONParser parser = new JSONParser();
-            JSONObject data = (JSONObject) parser.parse(new FileReader(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.json").toString()));
-            configMode = (String) data.get("configMode");
-            runtimeMode = (String) data.get("runtimeMode");
-        } catch (IOException | ParseException ignored) { System.out.println("Ошибка при чтении devMode."); }
-    }
 
     @LauncherAPI
     public static LauncherConfig getConfig() {
         LauncherConfig config = Launcher.CONFIG.get();
-        setModes();
         if (config == null) {
             try {
-                if (configMode.equals("project")) {
+                if (LauncherConfig.config.configMode.equals("project")) {
                     Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
                     FileSystem fs = FileSystems.newFileSystem(zipfile, null);
                     input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
                 }
-                if (configMode.equals("custom")) { 
+                if (LauncherConfig.config.configMode.equals("custom")) {
                 	input = new HInput(IOHelper.newInput(IOHelper.getCodeSource(Launcher.class).getParent().resolve("config.bin")));
                 }
-                if (configMode.equals("integral")) {
-                    Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher.jar").toUri());
-                    FileSystem fs = FileSystems.newFileSystem(zipfile, null);
-                    input = new HInput(IOHelper.newInput(fs.getPath("/config.bin")));
+                if (LauncherConfig.config.configMode.equals("integral")) {
+                    input = new HInput(IOHelper.newInput(IOHelper.getResourceURL("config.bin")));
                 }
                 config = new LauncherConfig(input);
-                System.out.println("PublicKey: "+config.publicKey.getModulus());
+                LogHelper.debug("PublicKey: "+config.publicKey.getModulus());
             }
             catch (IOException | InvalidKeySpecException e) {
                 throw new SecurityException(e);
@@ -93,29 +79,21 @@ public final class Launcher {
 
     @LauncherAPI
     public static URL getResourceURL(final String name) throws IOException {
-        setModes();
         URL url = null;
-        if(runtimeMode.equals("project")) {
+
+        if(LauncherConfig.config.runtimeMode.equals("project")) {
             Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
             FileSystem fs = FileSystems.newFileSystem(zipfile, null);
             url = fs.getPath("runtime/" + name).toUri().toURL();
-        } 
-        if(runtimeMode.equals("custom")) { 
+        }
+
+        if(LauncherConfig.config.runtimeMode.equals("custom")) {
         	url = IOHelper.getCodeSource(Launcher.class).getParent().resolve("runtime/" + name).toUri().toURL(); 
         }
-        if(runtimeMode.equals("integral")) {
-            Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher.jar").toUri());
-            FileSystem fs = FileSystems.newFileSystem(zipfile, null);
-            url = fs.getPath("runtime/" + name).toUri().toURL();
+
+        if(LauncherConfig.config.runtimeMode.equals("integral")) {
+            url = IOHelper.getResourceURL("runtime/" + name);
         }
-        url = IOHelper.getCodeSource(Launcher.class).getParent().resolve("runtime/" + name).toUri().toURL(); 
-        return url;
-    }
-    
-    public static URL getResourceURL(final String name, final String prefix) throws IOException {
-        Path zipfile = Paths.get(IOHelper.getCodeSource(Launcher.class).getParent().resolve("Launcher-original.jar").toUri());
-        FileSystem fs = FileSystems.newFileSystem(zipfile, null);
-        final URL url = fs.getPath(prefix + '/' + name).toUri().toURL();
         return url;
     }
     

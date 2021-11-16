@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Collections;
 import ru.gravit.launcher.client.ClientLauncherContext;
 import java.io.IOException;
+
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.UnpackHelper;
 import ru.gravit.utils.helper.IOHelper;
 import java.nio.file.Paths;
@@ -40,17 +42,7 @@ public class LauncherWrapperGuard implements LauncherGuardInterface
     
     @Override
     public void init(final boolean clientInstance) {
-        try {
-            final String wrapperName = (JVMHelper.JVM_BITS == 64) ? "wrapper64.exe" : "wrapper32.exe";
-            final String projectName = Launcher.getConfig().projectname;
-            final String wrapperUnpackName = (JVMHelper.JVM_BITS == 64) ? projectName.concat("64.exe") : projectName.concat("32.exe");
-            final String antiInjectName = (JVMHelper.JVM_BITS == 64) ? "AntiInject64.dll" : "AntiInject32.dll";
-            UnpackHelper.unpack(Launcher.getResourceURL(wrapperName, "guard"), DirBridge.getGuardDir().resolve(wrapperUnpackName));
-            UnpackHelper.unpack(Launcher.getResourceURL(antiInjectName, "guard"), DirBridge.getGuardDir().resolve(antiInjectName));
-        }
-        catch (IOException e) {
-            throw new SecurityException(e);
-        }
+        LogHelper.warning("Guard type Wrapper disabled!");
     }
     
     @Override
