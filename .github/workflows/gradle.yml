@@ -17,6 +17,7 @@ jobs:
         with:
          java-version: 8
          java-package: 'jdk+fx'
+         distribution: 'adopt-hotspot'
 
       - name: Build with Gradle
         run: ./gradlew.bat build
