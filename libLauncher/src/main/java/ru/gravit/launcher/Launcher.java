@@ -43,7 +43,6 @@ public final class Launcher {
     public static final Version.Type RELEASE;
     public static GsonBuilder gsonBuilder;
     public static Gson gson;
-    private static HInput input;
 
     @LauncherAPI
     public static LauncherConfig getConfig() {
