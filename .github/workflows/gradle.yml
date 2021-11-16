@@ -13,11 +13,11 @@ jobs:
           submodules: recursive
 
       - name: Set up JDK 8
-        uses: actions/setup-java@v2.3.1
+        uses: actions/setup-java@v2
         with:
-         java-version: '8.0.302'
+         java-version: '8'
          java-package: 'jdk+fx'
-         distribution: 'adopt'
+         distribution: 'zulu'
 
       - name: Build with Gradle
         run: ./gradlew.bat build
