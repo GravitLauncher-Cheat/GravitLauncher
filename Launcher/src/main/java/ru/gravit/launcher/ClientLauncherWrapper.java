@@ -9,6 +9,8 @@ import java.util.Collections;
 
 import org.json.simple.JSONObject;
 import ru.gravit.launcher.client.ClientLauncher;
+import ru.gravit.launcher.request.Request;
+
 import java.util.LinkedList;
 import ru.gravit.utils.helper.IOHelper;
 import java.nio.file.Paths;
